@@ -1,0 +1,1780 @@
+/* ===== GENERAL STYLES ===== */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-options {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    z-index: 10;
+    width: 100%;
+    max-height: 160px;
+    overflow-y: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-option {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.dropdown-option:hover {
+    background-color: #f0f0f0;
+}
+
+/* ===== FIRST SCREEN ===== */
+.error-container {
+    margin-bottom: 1rem;
+}
+
+/* ===== SECOND SCREEN CONTAINER ===== */
+.second-screen-container {
+    padding: 16px;
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ===== MINIMIZED SUMMARY CARDS (Info Chips Style) ===== */
+.summary-cards-wrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.summary-card {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 8px 14px;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 180px;
+}
+
+.summary-card:hover {
+    border-color: #693C5E;
+}
+
+.summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #693C5E;
+}
+
+.summary-card.total-card::before {
+    background: #c9a227;
+}
+
+.summary-card-header {
+    display: none;
+}
+
+.summary-card-icon {
+    display: none;
+}
+
+.summary-card-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.summary-card-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 0;
+}
+
+.summary-card.total-card .summary-card-value {
+    color: #693C5E;
+    font-weight: 700;
+}
+
+/* ===== PRICING TABLE CARD ===== */
+.pricing-table-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+/* ===== MINIMAL TABLE HEADER BAR ===== */
+.table-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    background: #693C5E;
+}
+
+.table-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.table-header-icon {
+    display: none;
+}
+
+.table-header-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.table-header-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* ===== TABLE CONTAINER ===== */
+.table-scroll-container {
+    max-height: 520px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #693C5E;
+    border-radius: 3px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #7d4a6e;
+}
+
+/* ===== HERO PRICING TABLE ===== */
+.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+/* Table Header - Subtle */
+.pricing-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.pricing-table thead tr {
+    background: #f8f8f8;
+}
+
+.pricing-table th {
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+    white-space: nowrap;
+}
+
+.pricing-table th:first-child {
+    padding-left: 14px;
+    width: 50px;
+    text-align: center;
+}
+
+/* ===== TABLE BODY - HIGHLIGHTED DATA ===== */
+.pricing-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.15s ease;
+}
+
+.pricing-table tbody tr:nth-child(even) {
+    background: #fcfcfc;
+}
+
+.pricing-table tbody tr:hover {
+    background: #f8f5f7;
+    box-shadow: inset 3px 0 0 #693C5E;
+}
+
+.pricing-table td {
+    padding: 12px;
+    font-size: 13px;
+    color: #333;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.pricing-table td:first-child {
+    padding-left: 14px;
+    text-align: center;
+}
+
+/* ===== SERIAL NUMBER ===== */
+.serial-number {
+    width: 22px;
+    height: 22px;
+    background: #693C5E;
+    color: #ffffff;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* ===== DATA CELLS - Uniform Style ===== */
+.pe-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.sba-value {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.amount-cell {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.amount-cell.discount {
+    color: #2e7d32;
+}
+
+.amount-cell.final {
+    color: #333;
+    font-weight: 600;
+}
+
+.amount-cell.tax {
+    color: #666;
+}
+
+/* ===== PE TYPE BADGE ===== */
+.pe-type-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #f0f0f0;
+    color: #666;
+    font-size: 9px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.pe-type-badge-ls {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.pe-type-badge-psft {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* ===== UNIT BADGE ===== */
+.unit-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #f5f5f5;
+    color: #666;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 3px;
+}
+
+/* ===== NO VALUE ===== */
+.no-value {
+    color: #ccc;
+    font-size: 13px;
+}
+
+.disabled-cell {
+    color: #ddd;
+}
+
+/* ===== DISCOUNT INPUT ===== */
+.discount-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.discount-input {
+    width: 75px;
+    padding: 5px 8px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: right;
+    transition: all 0.2s ease;
+}
+
+.discount-input:hover {
+    border-color: #aaa;
+}
+
+.discount-input:focus {
+    outline: none;
+    border-color: #693C5E;
+    box-shadow: 0 0 0 2px rgba(105, 60, 94, 0.12);
+}
+
+.discount-input::-webkit-inner-spin-button,
+.discount-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.discount-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.limit-exceed-error {
+    color: #d32f2f;
+    font-size: 9px;
+    font-weight: 600;
+    background: #ffebee;
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+/* ===== DESCRIPTION INPUT ===== */
+.description-input-wrapper {
+    margin-top: 4px;
+}
+
+.description-input {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #666;
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.description-input:focus {
+    outline: none;
+    border-color: #693C5E;
+    background: #fff;
+}
+
+.description-input::placeholder {
+    color: #bbb;
+    font-size: 10px;
+}
+
+/* ===== TABLE FOOTER TOTALS ===== */
+.pricing-table tfoot {
+    background-color: #fafafa;
+    border-top: 2px solid #e5e5e5;
+}
+
+.totals-row td {
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #333;
+}
+
+.total-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.total-value.final {
+    color: #693C5E;
+}
+
+.total-value.tax {
+    color: #666;
+}
+
+.difference-row td {
+    padding: 8px 12px;
+    background-color: #f5f0f4;
+}
+
+.difference-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: #693C5E;
+    background-color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #693C5E;
+}
+
+/* ===== TABLE FOOTER ===== */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: #fafafa;
+    border-top: 1px solid #e5e5e5;
+}
+
+.footer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.discount-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #2e7d32;
+    font-size: 11px;
+    font-weight: 500;
+    background-color: #e8f5e9;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* ===== NEXT BUTTON ===== */
+.next-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: #693C5E;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.next-btn:hover {
+    background: #7d4a6e;
+    transform: translateY(-1px);
+}
+
+.next-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.next-btn-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== NO DATA STATE ===== */
+.no-data-container {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.no-data-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 12px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-data-text {
+    font-size: 13px;
+    color: #888;
+    font-weight: 500;
+}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 8px;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-text {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #693C5E;
+    font-weight: 500;
+}
+
+/* ===== THIRD SCREEN CONTAINER ===== */
+.third-screen-container {
+    padding: 16px;
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ===== MINIMAL PARKING HEADER CARD ===== */
+.parking-header-card {
+    background: #693C5E;
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.parking-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.parking-header-icon {
+    display: none;
+}
+
+.parking-header-text h2 {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.parking-header-text p {
+    display: none;
+}
+
+.add-parking-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #ffffff;
+    color: #693C5E;
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-parking-btn:hover {
+    background: #f5f0f4;
+}
+
+.add-parking-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== MINIMAL PARKING AVAILABILITY CARDS ===== */
+.parking-availability-wrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.parking-availability-card {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 8px 14px;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-width: 150px;
+}
+
+.parking-availability-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #693C5E;
+}
+
+.parking-availability-card.open-parking::before {
+    background: #2e7d32;
+}
+
+.parking-availability-card.dependent-parking::before {
+    background: #f9a825;
+}
+
+.parking-availability-card.independent-parking::before {
+    background: #1976d2;
+}
+
+.parking-card-header {
+    display: none;
+}
+
+.parking-card-icon {
+    display: none;
+}
+
+.parking-card-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.parking-card-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.parking-availability-card.open-parking .parking-card-value {
+    color: #2e7d32;
+}
+
+.parking-availability-card.dependent-parking .parking-card-value {
+    color: #f9a825;
+}
+
+.parking-availability-card.independent-parking .parking-card-value {
+    color: #1976d2;
+}
+
+/* ===== PARKING TABLE CARD ===== */
+.parking-table-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+}
+
+/* ===== MINIMAL PARKING TABLE HEADER BAR ===== */
+.parking-table-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    background: #693C5E;
+}
+
+.parking-table-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.parking-table-header-icon {
+    display: none;
+}
+
+.parking-table-header-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0;
+}
+
+.parking-table-header-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* ===== PARKING TABLE ===== */
+.parking-table-scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.parking-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.parking-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.parking-table thead tr {
+    background: #f8f8f8;
+}
+
+.parking-table th {
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+    white-space: nowrap;
+}
+
+.parking-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.15s ease;
+}
+
+.parking-table tbody tr:nth-child(even) {
+    background: #fcfcfc;
+}
+
+.parking-table tbody tr:hover {
+    background: #f8f5f7;
+    box-shadow: inset 3px 0 0 #693C5E;
+}
+
+.parking-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #333;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* ===== PARKING TYPE CELL ===== */
+.parking-type-cell lightning-combobox {
+    --slds-c-input-radius-border: 4px;
+}
+
+/* ===== QUANTITY INPUT CELL ===== */
+.quantity-input-cell lightning-input {
+    --slds-c-input-radius-border: 4px;
+    max-width: 80px;
+}
+
+/* ===== TAX INFO CELL ===== */
+.tax-info-cell {
+    font-size: 11px;
+    color: #666;
+}
+
+.tax-info-cell .tax-label {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.tax-info-cell .tax-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ===== PARKING AMOUNT CELLS ===== */
+.parking-amount-cell {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.parking-amount-cell.tax {
+    color: #666;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.parking-action-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.action-btn.add-btn {
+    background: #2e7d32;
+    color: #ffffff;
+}
+
+.action-btn.add-btn:hover {
+    background: #1b5e20;
+}
+
+.action-btn.delete-btn {
+    background: #d32f2f;
+    color: #ffffff;
+}
+
+.action-btn.delete-btn:hover {
+    background: #b71c1c;
+}
+
+.action-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== NO PARKING MESSAGE ===== */
+.no-parking-message {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 6px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.no-parking-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 193, 7, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.no-parking-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: #8d6e00;
+    margin: 0;
+}
+
+/* ===== PARKING FOOTER ===== */
+.parking-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #ffffff;
+    color: #693C5E;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #693C5E;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: #693C5E;
+    color: #ffffff;
+}
+
+.back-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.continue-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: #693C5E;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.continue-btn:hover {
+    background: #7d4a6e;
+    transform: translateY(-1px);
+}
+
+.continue-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.continue-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== FOURTH SCREEN CONTAINER ===== */
+.fourth-screen-container {
+    padding: 16px;
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ===== MINIMAL GRAND TOTAL CARD ===== */
+.grand-total-card {
+    background: #693C5E;
+    border-radius: 6px;
+    padding: 12px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.grand-total-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.grand-total-icon {
+    display: none;
+}
+
+.grand-total-info h3 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 10px;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grand-total-amount {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.grand-total-badge {
+    display: none;
+}
+
+/* ===== FOURTH TABLE CARD ===== */
+.fourth-table-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+}
+
+/* ===== MINIMAL FOURTH TABLE HEADER ===== */
+.fourth-table-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    background: #693C5E;
+}
+
+.fourth-table-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fourth-table-header-icon {
+    display: none;
+}
+
+.fourth-table-header-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0;
+}
+
+.fourth-table-header-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* ===== FOURTH TABLE ===== */
+.fourth-table-scroll-container {
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.fourth-table-scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.fourth-table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.fourth-table-scroll-container::-webkit-scrollbar-thumb {
+    background: #693C5E;
+    border-radius: 3px;
+}
+
+.fourth-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.fourth-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.fourth-table thead tr {
+    background: #f8f8f8;
+}
+
+.fourth-table th {
+    padding: 8px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+    white-space: nowrap;
+}
+
+.fourth-table th:first-child {
+    padding-left: 14px;
+    width: 50px;
+    text-align: center;
+}
+
+.fourth-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.15s ease;
+}
+
+.fourth-table tbody tr:nth-child(even) {
+    background: #fcfcfc;
+}
+
+.fourth-table tbody tr:hover {
+    background: #f8f5f7;
+    box-shadow: inset 3px 0 0 #693C5E;
+}
+
+.fourth-table td {
+    padding: 12px;
+    font-size: 13px;
+    color: #333;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.fourth-table td:first-child {
+    padding-left: 14px;
+    text-align: center;
+}
+
+/* ===== FOURTH SERIAL NUMBER ===== */
+.fourth-serial-number {
+    width: 22px;
+    height: 22px;
+    background: #693C5E;
+    color: #ffffff;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* ===== FOURTH BADGES ===== */
+.fourth-unit-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #f5f5f5;
+    color: #666;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.fourth-pe-type-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #f0f0f0;
+    color: #666;
+    font-size: 9px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+/* ===== FOURTH AMOUNT CELLS ===== */
+.fourth-amount-cell {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.fourth-amount-cell.discount {
+    color: #2e7d32;
+}
+
+.fourth-amount-cell.actual {
+    color: #333;
+}
+
+/* ===== FOURTH NO DATA ===== */
+.fourth-no-data {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.fourth-no-data-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 12px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fourth-no-data-text {
+    font-size: 13px;
+    color: #888;
+    font-weight: 500;
+}
+
+/* ===== FOURTH FOOTER ===== */
+.fourth-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+
+.fourth-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #ffffff;
+    color: #693C5E;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #693C5E;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fourth-back-btn:hover {
+    background: #693C5E;
+    color: #ffffff;
+}
+
+.fourth-save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #693C5E;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fourth-save-btn:hover {
+    background: #7d4a6e;
+    transform: translateY(-1px);
+}
+
+.fourth-save-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.fourth-save-btn.approval {
+    background: #693C5E;
+}
+
+.fourth-save-btn.approval:hover {
+    background: #7d4a6e;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+
+    .summary-cards-wrapper,
+    .parking-availability-wrapper {
+        flex-direction: column;
+    }
+
+    .summary-card,
+    .parking-availability-card {
+        min-width: 100%;
+    }
+
+    .grand-total-card {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .parking-header-card {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .second-screen-container,
+    .third-screen-container,
+    .fourth-screen-container {
+        padding: 12px;
+    }
+
+    .parking-footer,
+    .fourth-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .back-btn,
+    .continue-btn,
+    .fourth-back-btn,
+    .fourth-save-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .next-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ===== PARKING TABLE DISCOUNT COLUMNS ===== */
+.parking-table .discount-col {
+    min-width: 100px;
+}
+
+.parking-table .discount-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.parking-table .discount-input {
+    width: 70px;
+    padding: 5px 8px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: right;
+    transition: all 0.2s ease;
+}
+
+.parking-table .discount-input:hover {
+    border-color: #aaa;
+}
+
+.parking-table .discount-input:focus {
+    outline: none;
+    border-color: #693C5E;
+    box-shadow: 0 0 0 2px rgba(105, 60, 94, 0.12);
+}
+
+.parking-table .limit-exceed-error {
+    color: #d32f2f;
+    font-size: 9px;
+    font-weight: 600;
+    background: #ffebee;
+    padding: 1px 4px;
+    border-radius: 2px;
+    white-space: nowrap;
+}
+
+.parking-amount-cell.final {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ============================================
+   PARKING SUMMARY ROW - New Styles
+   ============================================ */
+
+/* ============================================
+   PARKING SUMMARY ROW - Matching Existing Style
+   ============================================ */
+
+.parking-summary-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #fafafa;
+    border-top: 1px solid #e5e5e5;
+    border-radius: 0 0 8px 8px;
+}
+
+.parking-summary-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    padding: 8px 14px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    position: relative;
+    overflow: hidden;
+    min-width: 150px;
+}
+
+.parking-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #693C5E;
+}
+
+.parking-summary-card.total::before {
+    background: #693C5E;
+}
+
+.parking-summary-card.single::before {
+    background: #2e7d32;
+}
+
+.parking-summary-card.dual::before {
+    background: #1976d2;
+}
+
+.parking-summary-card .summary-icon {
+    display: none;
+    /* Hide icons to match minimal style */
+}
+
+.parking-summary-card .summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.parking-summary-card .summary-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.parking-summary-card .summary-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.parking-summary-card.total .summary-value {
+    color: #693C5E;
+}
+
+.parking-summary-card.single .summary-value {
+    color: #2e7d32;
+}
+
+.parking-summary-card.dual .summary-value {
+    color: #1976d2;
+}
+
+/* ============================================
+   SINGLE & DUAL PARKING AVAILABILITY CARDS
+   (New classes for Single and Dual)
+   ============================================ */
+
+.parking-availability-card.single-parking::before {
+    background: #2e7d32;
+}
+
+.parking-availability-card.dual-parking::before {
+    background: #1976d2;
+}
+
+.parking-availability-card.single-parking .parking-card-value {
+    color: #2e7d32;
+}
+
+.parking-availability-card.dual-parking .parking-card-value {
+    color: #1976d2;
+}
+
+/* ============================================
+   DISCOUNT INPUT BOX - Alignment Fix
+   ============================================ */
+
+.parking-table .discount-col {
+    vertical-align: middle;
+    text-align: center;
+    min-width: 100px;
+}
+
+.parking-table .discount-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+}
+
+.parking-table .discount-input {
+    width: 80px;
+    padding: 5px 8px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: right;
+    transition: all 0.2s ease;
+}
+
+.parking-table .discount-input:hover {
+    border-color: #aaa;
+}
+
+.parking-table .discount-input:focus {
+    outline: none;
+    border-color: #693C5E;
+    box-shadow: 0 0 0 2px rgba(105, 60, 94, 0.12);
+}
+
+.parking-table .discount-input::-webkit-inner-spin-button,
+.parking-table .discount-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.parking-table .discount-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.parking-table .limit-exceed-error {
+    display: block;
+    margin-top: 2px;
+    color: #d32f2f;
+    font-size: 9px;
+    font-weight: 600;
+    background: #ffebee;
+    padding: 1px 4px;
+    border-radius: 2px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .parking-summary-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .parking-summary-card {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .parking-table .discount-input {
+        width: 70px;
+    }
+}
+
+/* Parking Table Header Right Section */
+.parking-table-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Add Row Button */
+.add-row-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-row-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.add-row-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Parking Type Cell */
+.parking-type-cell {
+    min-width: 150px;
+}
+
+/* Amount Input Cell */
+.amount-input-cell {
+    min-width: 120px;
+}
+
+/* Action Cell */
+.action-cell {
+    text-align: center;
+    width: 60px;
+}
+
+/* Field Error */
+.field-error {
+    display: block;
+    color: #ea001e;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+/* Quantity Input Cell */
+.quantity-input-cell {
+    min-width: 100px;
+}
+
+.quantity-input-cell .field-error {
+    white-space: nowrap;
+}
+/* Required Asterisk */
+.required-asterisk {
+    color: #ea001e;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+/* Field Error Styles */
+.field-error {
+    display: block;
+    color: #ea001e;
+    font-size: 11px;
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+/* Parking Table Header Right Section */
+.parking-table-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Add Row Button */
+.add-row-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-row-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.add-row-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Parking Type Cell */
+.parking-type-cell {
+    min-width: 150px;
+}
+
+/* Amount Input Cell */
+.amount-input-cell {
+    min-width: 120px;
+}
+
+/* Action Cell */
+.action-cell {
+    text-align: center;
+    width: 60px;
+}
+
+/* Quantity Input Cell */
+.quantity-input-cell {
+    min-width: 100px;
+}
+
+.quantity-input-cell .field-error {
+    white-space: nowrap;
+}
+
+/* No Rows Message */
+.no-rows-message {
+    text-align: center;
+    padding: 30px;
+    background-color: #f8f9fa;
+}
+
+.no-rows-content {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Limit Exceed Error */
+.limit-exceed-error {
+    display: block;
+    color: #ea001e;
+    font-size: 11px;
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+/* Tax Info Cell */
+.tax-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tax-label {
+    font-size: 12px;
+    color: #666;
+}
+
+.tax-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Parking Amount Cells */
+.parking-amount-cell {
+    text-align: right;
+    font-weight: 500;
+}
+
+.parking-amount-cell.tax {
+    color: #856404;
+}
+
+.parking-amount-cell.final {
+    color: #155724;
+    font-weight: 600;
+}

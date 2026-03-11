@@ -1,0 +1,143 @@
+<template>
+  
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span class="title-icon">
+                        <lightning-icon icon-name="utility:currency" size="medium"></lightning-icon>
+                    </span>
+                    <div>
+                        <h1>Pricing Element Master</h1>
+                        <span>Set up base price, floor rise, PLC and other pricing components</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-outline" onclick={handleUpload}>
+                    <lightning-icon icon-name="utility:upload" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Upload File</span>
+                </button>
+
+                <button class="btn-outline" onclick={downloadTemplate}>
+                    <lightning-icon icon-name="utility:download" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Download Template</span>
+                </button>
+                
+            
+
+                <input type="file" accept=".csv" class="upload" onchange={handleFileUpload} style="display:none;"/>
+            </div>
+        </div>
+
+        <div class="drop-zone"
+            ondragover={handleDragOver}
+            ondragleave={handleDragLeave}
+            ondrop={handleDrop}
+            onclick={openFilePicker}>
+
+            <div class="drop-content">
+                <lightning-icon icon-name="utility:currency" size="large"></lightning-icon>
+                <p class="drop-title">Drag & drop your file here</p>
+                <p class="drop-sub">Supports .csv files up to 10MB</p>
+            </div>
+
+            <input type="file" accept=".csv" class="upload" onchange={handleFileUpload} style="display:none;" />
+        </div>
+
+        <template if:true={showHeaderErrors}>
+            <div class="error-summary">
+                <strong>Header Errors: </strong>{headerErrorMessage}
+            </div>
+        </template>
+
+        <template if:true={hasRowErrors}>
+            <div class="error-summary">
+                <strong>Row Errors: </strong>{rowErrorRows}
+            </div>
+        </template>
+
+        <template if:true={headers.length}>
+                <div class="content-area">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <template for:each={headers} for:item="header">
+                                    <th key={header}>{header}</th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={paginatedRowsToDisplay} for:item="row">
+                                <tr key={row.id}>
+                                    <template for:each={row.cells} for:item="cell">
+                                        <td key={cell.id} class={cell.className}>
+                                            {cell.value}
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <template if:true={previewData.length}>
+                        <c-custom-pagination-component
+                            class="previewPagination"
+                            list={previewData}
+                            onpagechanged={jobPaginationCallback}>
+                        </c-custom-pagination-component>
+                    </template>
+                </div>
+                <template if:true={canSave}>
+                    <div class="slds-align_absolute-center">
+                    <button class="btn-primary" onclick={handleSave} style="padding: 10px 20px;border-radius:6px;margin-top:8px">
+                    
+                        <span>Save</span>
+                    </button></div>
+                </template>
+            </div>
+        </template>
+        <template if:true={hasExistingRecords}>
+    <div class="summary-card">
+        <span class="unit-count">{existingRecords.length} Records</span>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Base Unit</th>
+                  <th>Code</th>
+                  <th>Conversion Unit</th>
+                  <th>Conversion Factor</th>
+                  <th>Parking Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={paginatedUnitData} for:item="row">
+                    <tr key={row.Id}>
+                        <td>{row.sNo}</td>
+                        <td>{row.Name}</td>
+                        <td>{row.Category__c}</td>
+                        <td>{row.Base_Unit__c}</td>
+                        <td>{row.Code__c}</td>
+                        <td>{row.Conversion_Unit__c}</td>
+                        <td>{row.Conversion_Factor__c}</td>
+                        <td>{row.Parking_Type__c}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+
+    <c-custom-pagination-component
+        class="unitPagination"
+        list={existingRecords}
+        onpagechanged={jobPaginationCallback2}>
+    </c-custom-pagination-component>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,236 @@
+.container {
+    width: 100%;
+    min-height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+    background-color: #f6f7f9;
+}
+
+/* ===== Header ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    display: flex;
+    flex-direction: column;
+}
+
+.page-title h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0b1f3a;
+    margin: 0;
+}
+
+.page-title span {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.title-icon {
+    background: #eef2f7;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== Buttons ===== */
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.header-actions button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #0f172a;
+}
+
+.header-actions button:hover {
+    background-color: #f8fafc;
+}
+
+.btn-outline {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    color: #0f172a;
+}
+
+.btn-primary {
+    background-color: #0b1f3a !important;
+    border-color: #0b1f3a !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover {
+    background-color: #0e2a4f;
+}
+
+.btn-slds-icon {
+    --sds-c-icon-color-foreground-default: currentColor;
+}
+
+.upload {
+    display: none;
+}
+
+/* ===== Error Summary ===== */
+.error-summary {
+    color: rgb(197, 25, 25);
+    font-size: 17px;
+    border-left: 4px solid rgb(197, 25, 25);
+    padding: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    background-color: rgb(231, 210, 210);
+}
+
+/* ===== Content Area ===== */
+.content-area {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 16px;
+}
+
+.table-container {
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+}
+
+/* Show thin scrollbar */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+table {
+    /* min-width: 1400px;  */ 
+    border-collapse: collapse;
+    /* width: max-content;  */
+}
+thead {
+    background-color: #22416b;
+    color: #ffffff;
+}
+
+td, th {
+    padding: 10px 12px;
+    text-align: left;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+
+/* ===== Error Cell ===== */
+.error-cell {
+    color: #b30000;
+    background-color: #ffe6e6;
+    font-weight: 600;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/* ===== Drag & Drop Zone ===== */
+.drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+}
+
+.drop-zone:hover {
+    background: #f3f4f6;
+}
+
+.drop-zone.drag-over {
+    background: #f0f7ff;
+    border-color: #2563eb;
+}
+
+.drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.drop-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.drop-sub {
+    font-size: 14px;
+    color: #6b7280;
+}
+/* Error Column Styling */
+.error-column {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+/* Error Header */
+th.error-header {
+    background-color: #7f1d1d;
+    color: #ffffff;
+}
+
+.summary-card {
+    background-color: #f4f6f9;
+    padding: 10px 3px;
+    border-radius: 12px;
+    /* font-family: Arial, sans-serif; */
+    display: inline-block;
+}
+.unit-count {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-right: 8px;
+}

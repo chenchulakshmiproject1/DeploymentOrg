@@ -1,0 +1,43 @@
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.pagination-wrapper lightning-button {
+    --slds-c-button-spacing-inline-start: 0.5rem;
+    --slds-c-button-spacing-inline-end: 0.5rem;
+}
+
+.showText {
+    white-space: nowrap;
+    font-weight: 600;
+    margin: 0 6px;
+    font-size: 0.9rem;
+    font-family: 'Segoe UI', sans-serif;
+    color: #1f2937;
+}
+
+/* Optional: smaller button look */
+.pagination-wrapper lightning-button::part(button) {
+    padding: 4px 10px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+
+    .pagination-wrapper {
+        gap: 6px;
+    }
+
+    .showText {
+        white-space: normal;
+        text-align: center;
+        font-size: 0.85rem;
+        margin: 6px 0;
+    }
+
+}

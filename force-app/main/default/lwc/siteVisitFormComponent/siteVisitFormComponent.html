@@ -1,0 +1,751 @@
+<template>
+    <div class="main-div">
+        <div class="search-container">
+
+            <div class="input-section">
+                <label class="label" style="margin-bottom: 5px;">Enter Email or Phone</label>
+                <input type="text" class="input" value={searchValue} onchange={handleSearchChange}/>
+            </div>
+
+            <div class="button-section">
+                <button class="button slds-button slds-button_brand" onclick={getleadDet}>Search</button>
+                <template if:true={errorMsg}>
+                    <button class="button slds-button slds-button_brand" onclick={createLead}>
+                        Create New Lead
+                    </button>
+                </template>
+                <template if:true={showCreateVisit}>
+                <button class="button slds-button slds-button_brand" onclick={OnClickcreateVisit}>
+                    Create Visit
+                </button></template>
+
+                <button class="button slds-button slds-button_brand" id="btnPleaseWait1" style="display:none;">
+                    Please Wait...
+                </button>
+            </div>
+
+        </div>
+        <template if:true={errorMsg}>
+            <div class="row mt-5">
+                <h3 style="color: red; text-align:center;">No such record available ! Try Again.....</h3>
+            </div>
+        </template>
+
+        <template if:true={showLeadDetails}>
+            <hr class="border"/>
+            <h5 style="color:#1e45aa;"><b>Lead Details</b></h5>
+            <div class="row mt-5">
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Name</label>
+                    <lightning-input value={leadDetails.FirstName} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Surname</label>
+                    <lightning-input value={leadDetails.LastName} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Email ID</label>
+                    <lightning-input value={leadDetails.Email} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Phone No.</label>
+                    <lightning-input value={leadDetails.Phone} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Pre Sales Team Member</label>
+                    <lightning-input value={leadDetails.preSalesName} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Channel Partner</label>
+                    <lightning-input value={leadDetails.channelPartner} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Lead Stage</label>
+                    <lightning-input value={leadDetails.Status} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Lead Source</label>
+                    <lightning-input value={leadDetails.LeadSource} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Lead Sub Source</label>
+                    <lightning-input value={leadDetails.Lead_Sub_Source__c} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+                <div class="col-md-6 mt-3">
+                    <label class="label">Lead Type</label>
+                    <lightning-input value={leadDetails.Lead_Type__c} variant="label-hidden" disabled></lightning-input>
+                </div>
+
+               <div class="col-md-6 mt-3 ">
+                    <div class="checkbox-row">
+                        <label class="label">Bypass Validation</label>
+                        <lightning-input type="checkbox" checked={leadDetails.By_Pass_Validations__c}></lightning-input>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+
+        <template if:true={showAllLeadDetails}>
+            <hr class="border"/>
+            <h5 style="color:#1e45aa;"><b>All Lead Details</b></h5>
+            <div class="row mt-5">
+
+                <div class="table-responsive table-res">
+                    <table class="table">
+                        <thead class="table-header-custom">
+                            <tr>
+                                <th>Sr.</th>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Pre Sales Team Member</th>
+                                <th>Lead Source</th>
+                                <th>Lead Sub Source</th>
+                                <th>Lead Type</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <template for:each={leadList} for:item="lead" for:index="index">
+                                <tr key={lead.Id}>
+                                    <td>{lead.index}</td>
+                                    <td>{lead.FirstName}</td>
+                                    <td>{lead.LastName}</td>
+                                    <td>{lead.Email}</td>
+                                    <td>{lead.Phone}</td>
+                                    <td>{lead.preSalesName}</td>
+                                    <td>{lead.LeadSource}</td>
+                                    <td>{lead.Lead_Sub_Source__c}</td>
+                                    <td>{lead.Lead_Type__c}</td>
+                                    <td>
+                                        <a data-id={lead.Id} onclick={OnClickcreateVisit}>Create Visit</a>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </template>
+
+
+        <template if:true={showAllOppDetails}>
+            <h5 style="color:#1e45aa;"><b>All Opportunity Details</b></h5>
+            <div class="row mt-5">
+
+                <div class="table-responsive table-res">
+                    <table class="table">
+
+                        <thead class="table-header-custom">
+                            <tr>
+                                <th>Sr.</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Lead Source</th>
+                                <th>Lead Sub Source</th>
+                                <th>Lead Type</th>
+                                <th>Pre Sales Team Member</th>
+                                <th>No. of Visits</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <template for:each={oppList} for:item="opp" for:index="index">
+                                <tr key={opp.Id}>
+                                    <td>{opp.index}</td>
+                                    <td>{opp.Name}</td>
+                                    <td>{opp.Email__c}</td>
+                                    <td>{opp.Phone__c}</td>
+                                    <td>{opp.LeadSource}</td>
+                                    <td>{opp.Lead_Sub_Source__c}</td>
+                                    <td>{opp.Lead_Type__c}</td>
+                                    <td>{opp.preSalesName}</td>
+
+                                    <td>
+                                        <a data-id={opp.Id} onclick={showRelVisits}>
+                                            {opp.visitCount}
+                                        </a>
+                                    </td>
+
+                                    <td>
+                                        <a data-id={opp.Id} onclick={OnClickcreateVisit}>Create Visit</a>
+                                    </td>
+
+                                </tr>
+                            </template>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </template>
+        <template if:true={relVisits}>
+            <h5 style="color:#1e45aa;">
+                <b>All Visits related to {oppName} opportunity</b>
+            </h5>
+
+            <div class="table-responsive table-res">
+                <table class="table">
+
+                    <thead class="table-header-custom">
+                        <tr>
+                            <th>Sr.</th>
+                            <th>Visit Id</th>
+                            <th>Opportunity</th>
+                            <th>Project Name</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <template for:each={visitList} for:item="visit" for:index="index">
+                            <tr key={visit.Id}>
+                                <td>{visit.index}</td>
+                                <td>{visit.Name}</td>
+                                <td>{visit.Opportunity__r.Name}</td>
+                                <td>{visit.Project_Name__c}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+
+                </table>
+            </div>
+        </template>     
+        <!-- <template if:true={showVisitSection}> -->
+            <!-- <template for:each={visitSections} for:item="section">
+
+                <div key={section.sectionName} class="section">
+
+                    <h3 class="section-title">{section.sectionName}</h3> -->
+                    <!-- <div class="form-grid">
+                        <template for:each={visitFields} for:item="field">
+                            <div key={field.Id} class="field">
+                                <template if:true={field.isText}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="text"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={field.isPhone}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="tel"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={field.isNumber}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="number"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={field.isDate}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="date"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={field.isDateTime}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="datetime"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={field.isCheckbox}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="checkbox"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    onchange={handleInputChange}
+                                    required={field.Is_Required__c}>
+                                    </lightning-input>
+                                </template>
+                                <template if:true={field.isPicklist}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-combobox
+                                    variant="label-hidden" 
+                                    label={field.Field_Label__c}
+                                    options={field.options}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    onchange={handleInputChange}
+                                    required={field.Is_Required__c}>
+                                    </lightning-combobox>
+                                </template>
+                                <template if:true={field.isMultiPicklist}>
+                                    <div class="slds-form-element">
+
+                                        <label class="label">
+                                            {field.Field_Label__c}
+                                            <template if:true={field.Is_Required__c}>
+                                                <abbr class="slds-required">*</abbr>
+                                            </template>
+                                        </label>
+
+                                        <div class="slds-combobox_container">
+
+                                            <div class={field.dropdownClass} data-field={field.Field_API_Name__c}>
+
+                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right">
+
+                                                    <div
+                                                        role="combobox"
+                                                        tabindex="0"
+                                                        class="slds-input_faux slds-combobox__input"
+                                                        aria-expanded={field.isOpen}
+                                                        aria-haspopup="listbox"
+                                                        onclick={toggleMultiPicklist}
+                                                        data-object={field.Object_API_Name__c}
+                                                        data-field={field.Field_API_Name__c}
+                                                    >
+
+                                                        <span class="slds-truncate  multi-label">{field.selectedLabel}</span>
+
+                                                    </div>
+
+                                                    <span class="slds-icon_container slds-input__icon slds-input__icon_right">
+                                                        <lightning-icon icon-name="utility:down" size="x-small"></lightning-icon>
+                                                    </span>
+
+                                                </div>
+
+                                                <template if:true={field.isOpen}>
+
+                                                    <div class="slds-dropdown slds-dropdown_fluid my-multipicklist-dropdown">
+
+                                                        <ul class="slds-listbox slds-listbox_vertical">
+
+                                                            <template for:each={field.options} for:item="opt">
+
+                                                                <li key={opt.value} class="slds-listbox__item slds-m-bottom_medium" >
+
+                                                                    <div
+                                                                        role="option"
+                                                                        class={opt.class}
+                                                                        data-field={field.Field_API_Name__c}
+                                                                        data-object={field.Object_API_Name__c}
+                                                                        data-value={opt.value}
+                                                                        onclick={handleMultiSelect}
+                                                                    >
+
+                                                                        <span class="slds-media__body">
+                                                                            <span class="slds-truncate">{opt.label}</span>
+                                                                        </span>
+
+                                                                        <template if:true={opt.selected}>
+                                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                <lightning-icon icon-name="utility:check" size="x-small"></lightning-icon>
+                                                                            </span>
+                                                                        </template>
+
+                                                                    </div>
+
+                                                                </li>
+
+                                                            </template>
+
+                                                        </ul>
+
+                                                    </div>
+
+                                                </template>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </template>
+                                <template if:true={field.isLookup}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-combobox
+                                    variant="label-hidden" 
+                                    label={field.Field_Label__c}
+                                    options={field.options}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-combobox>
+                                </template>
+                                <template if:true={field.isDependentPicklist}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-combobox
+                                        variant="label-hidden" 
+                                        label={field.Field_Label__c}
+                                        options={field.options}
+                                        data-field={field.Field_API_Name__c}
+                                        data-object={field.Object_API_Name__c}
+                                        required={field.Is_Required__c}
+                                        onchange={handleInputChange}>
+                                    </lightning-combobox>
+                                </template>
+                            </div>
+                        </template>
+                    </div> -->
+                <!-- </div>
+
+            </template> -->
+        <!-- </template> -->
+        <template if:true={showLeadRVistScreen}>
+            <!-- <template for:each={leadSections} for:item="section">
+
+                <div key={section.sectionName} class="section">
+
+                    <h3 class="section-title">{section.sectionName}</h3> -->
+                    <div class="form-grid">
+                        <template for:each={currentFields} for:item="field">
+
+                            <div key={field.Id} class="field">
+                                <!-- TEXT -->
+                                <template if:true={field.isText}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="text"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <!-- PHONE -->
+                                <template if:true={field.isPhone}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="tel"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <!-- NUMBER -->
+                                <template if:true={field.isNumber}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden"
+                                    type="number"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <!-- DATE -->
+                                <template if:true={field.isDate}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="date"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <!-- DATETIME -->
+                                <template if:true={field.isDateTime}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="datetime"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <!-- CHECKBOX -->
+                                <template if:true={field.isCheckbox}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-input
+                                    variant="label-hidden" 
+                                    type="checkbox"
+                                    label={field.Field_Label__c}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-input>
+                                </template>
+                                <!-- PICKLIST -->
+                                <template if:true={field.isPicklist}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-combobox
+                                    variant="label-hidden" 
+                                    label={field.Field_Label__c}
+                                    options={field.options}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-combobox>
+                                </template>
+                                <!-- MULTI PICKLIST -->
+                                <template if:true={field.isMultiPicklist}>
+                                    <div class="slds-form-element">
+
+                                        <label class="label">
+                                            {field.Field_Label__c}
+                                            <template if:true={field.Is_Required__c}>
+                                                <abbr class="slds-required">*</abbr>
+                                            </template>
+                                        </label>
+
+                                        <div class="slds-combobox_container">
+
+                                            <div class={field.dropdownClass} data-field={field.Field_API_Name__c}>
+
+                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right">
+
+                                                    <div
+                                                        role="combobox"
+                                                        tabindex="0"
+                                                        class="slds-input_faux slds-combobox__input"
+                                                        aria-expanded={field.isOpen}
+                                                        aria-haspopup="listbox"
+                                                        onclick={toggleMultiPicklist}
+                                                        data-object={field.Object_API_Name__c}
+                                                        data-field={field.Field_API_Name__c}
+                                                    >
+
+                                                        <span class="slds-truncate  multi-label">{field.selectedLabel}</span>
+
+                                                    </div>
+
+                                                    <span class="slds-icon_container slds-input__icon slds-input__icon_right">
+                                                        <lightning-icon icon-name="utility:down" size="x-small"></lightning-icon>
+                                                    </span>
+
+                                                </div>
+
+                                                <template if:true={field.isOpen}>
+
+                                                    <div class="slds-dropdown slds-dropdown_fluid my-multipicklist-dropdown">
+
+                                                        <ul class="slds-listbox slds-listbox_vertical">
+
+                                                            <template for:each={field.options} for:item="opt">
+
+                                                                <li key={opt.value} class="slds-listbox__item slds-m-bottom_medium" >
+
+                                                                    <div
+                                                                        role="option"
+                                                                        class={opt.class}
+                                                                        data-field={field.Field_API_Name__c}
+                                                                        data-object={field.Object_API_Name__c}
+                                                                        data-value={opt.value}
+                                                                        onclick={handleMultiSelect}
+                                                                    >
+
+                                                                        <span class="slds-media__body">
+                                                                            <span class="slds-truncate">{opt.label}</span>
+                                                                        </span>
+
+                                                                        <template if:true={opt.selected}>
+                                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                                <lightning-icon icon-name="utility:check" size="x-small"></lightning-icon>
+                                                                            </span>
+                                                                        </template>
+
+                                                                    </div>
+
+                                                                </li>
+
+                                                            </template>
+
+                                                        </ul>
+
+                                                    </div>
+
+                                                </template>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </template>
+                                <!-- LOOKUP -->
+                                <template if:true={field.isLookup}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-combobox
+                                    variant="label-hidden" 
+                                    label={field.Field_Label__c}
+                                    options={field.options}
+                                    data-field={field.Field_API_Name__c}
+                                    data-object={field.Object_API_Name__c}
+                                    required={field.Is_Required__c}
+                                    onchange={handleInputChange}>
+                                    </lightning-combobox>
+                                </template>
+                                <template if:true={field.isDependentPicklist}>
+                                    <label class="label">
+                                        {field.Field_Label__c}
+                                        <template if:true={field.Is_Required__c}>
+                                            <abbr class="slds-required">*</abbr>
+                                        </template>
+                                    </label>
+                                    <lightning-combobox
+                                        variant="label-hidden" 
+                                        label={field.Field_Label__c}
+                                        options={field.options}
+                                        data-field={field.Field_API_Name__c}
+                                        data-object={field.Object_API_Name__c}
+                                        required={field.Is_Required__c}
+                                        onchange={handleInputChange}>
+                                    </lightning-combobox>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                    <template if:true={showCreateLead}>
+                        <div class="slds-m-top_medium"><button class="button slds-button slds-button_brand" onclick={createDymaicRecord}>Create</button></div>
+                    </template>
+                    <template if:true={showVisitSection}>
+                        <div class="slds-m-top_medium"><button class="button slds-button slds-button_brand" onclick={createDymaicRecord}>Submit</button></div>
+                    </template>
+                <!-- </div>
+
+            </template> -->
+        </template>   
+    </div>
+</template>

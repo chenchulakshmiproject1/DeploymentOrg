@@ -1,0 +1,18 @@
+<template>
+    <div class="pagination-wrapper">
+
+        <lightning-button label="&#9668;&#9668;"
+            disabled={disablePrev} onclick={handleFirst} style="font-family: sans-serif;"></lightning-button>
+        <lightning-button label="&#9668;"  disabled={disablePrev} onclick={handlePrev}
+            style="font-family: sans-serif;"></lightning-button>
+            
+        <p class='showText'>Showing {pageParam} of {totalRecords} rows</p>
+
+     
+        <lightning-button label="&#9654;"  disabled={disableNext} onclick={handleNext}
+            style="font-family: sans-serif;"></lightning-button>
+        <lightning-button label="&#9654;&#9654;" class='slds-m-right_xxx-small slds-border_right '
+            disabled={disableNext} onclick={handleLast} style="font-family: sans-serif;"></lightning-button>
+       
+    </div>
+</template>

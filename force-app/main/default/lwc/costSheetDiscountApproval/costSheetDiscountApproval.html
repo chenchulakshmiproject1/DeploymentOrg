@@ -1,0 +1,426 @@
+<template>
+    <!-- Loading Spinner -->
+    <template if:true={isLoading}>
+        <div class="loading-container">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            <p class="loading-text">{loadingMessage}</p>
+        </div>
+    </template>
+
+    <template if:false={isLoading}>
+        
+        <!-- Error State -->
+        <template if:true={hasError}>
+            <div class="error-container">
+                <div class="error-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c23934" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <h2 class="error-title">Access Denied</h2>
+                <p class="error-message">{errorMessage}</p>
+                <button class="close-btn" onclick={handleClose}>Close</button>
+            </div>
+        </template>
+
+        <!-- No Pending Cost Sheets -->
+        <template if:true={noPendingCostSheets}>
+            <div class="no-data-container">
+                <div class="no-data-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#693C5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <h2 class="no-data-title">No Pending Approvals</h2>
+                <p class="no-data-text">There are no cost sheets pending your approval for this opportunity.</p>
+                <button class="close-btn primary" onclick={handleClose}>Close</button>
+            </div>
+        </template>
+
+        <!-- Main Content -->
+        <template if:false={hasError}>
+            <template if:false={noPendingCostSheets}>
+                
+                <!-- ========================================== -->
+                <!-- SCREEN 1: Select Cost Sheet -->
+                <!-- ========================================== -->
+                <template if:true={showScreen1}>
+                    <div class="screen-container">
+                        
+                        <!-- Header -->
+                        <div class="screen-header">
+                            <div class="header-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div class="header-text">
+                                <h2>Discount Approval</h2>
+                                <p>Select a cost sheet to review and approve discounts</p>
+                            </div>
+                        </div>
+
+                        <!-- Approver Info Banner -->
+                        <div class="info-banner">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span>Logged in as: <strong>{currentUserName}</strong> ({currentUserRole})</span>
+                        </div>
+
+                        <!-- Cost Sheet List -->
+                        <div class="cost-sheet-list-card">
+                            <div class="list-header">
+                                <span class="list-title">Pending Cost Sheets</span>
+                                <span class="list-count">{pendingCostSheetsCount} Items</span>
+                            </div>
+                            
+                            <div class="cost-sheet-list">
+                                <template for:each={pendingCostSheets} for:item="cs">
+                                    <div key={cs.Id} class={cs.rowClass} data-id={cs.Id} onclick={handleCostSheetSelect}>
+                                        <div class="radio-wrapper">
+                                            <input 
+                                                type="radio" 
+                                                name="costSheetSelection" 
+                                                value={cs.Id}
+                                                checked={cs.isSelected}
+                                                class="radio-input"
+                                            />
+                                            <span class="radio-custom"></span>
+                                        </div>
+                                        <div class="cs-info">
+                                            <div class="cs-name">{cs.Name}</div>
+                                            <div class="cs-details">
+                                                <span class="cs-detail-item">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                                    </svg>
+                                                    {cs.unitName}
+                                                </span>
+                                                <span class="cs-detail-item version-item">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                                    </svg>
+                                                    Version: {cs.version}
+                                                </span>
+                                                <span class="cs-detail-item">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                    </svg>
+                                                    {cs.createdDate}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="cs-amount">
+                                            <div class="amount-label">Discount (per sqft)</div>
+                                            <div class="amount-value">₹ {cs.formattedDifference}</div>
+                                        </div>
+                                        <div class="cs-status">
+                                            <template if:true={cs.isAlreadyApproved}>
+                                                <span class="status-badge approved">Approved</span>
+                                            </template>
+                                            <template if:false={cs.isAlreadyApproved}>
+                                                <span class="status-badge under-approval">{cs.statusLabel}</span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="screen-footer">
+                            <button class="btn-secondary" onclick={handleClose}>
+                                Cancel
+                            </button>
+                            <button class="btn-primary" onclick={handleNextToScreen2} disabled={isNextDisabled}>
+                                <span>Next</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+                </template>
+
+                <!-- ========================================== -->
+                <!-- SCREEN 2: Approval Table -->
+                <!-- ========================================== -->
+                <template if:true={showScreen2}>
+                    <div class="screen-container">
+                        
+                        <!-- Header -->
+                        <div class="screen-header">
+                            <div class="header-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <div class="header-text">
+                                <h2>Review & Approve Discounts</h2>
+                                <p>{selectedCostSheetName} • {approvalLevelLabel} • {versionLabel}</p>
+                            </div>
+                            <div class="header-badge">
+                                <span class="role-badge">{currentApproverRole}</span>
+                            </div>
+                        </div>
+
+                        <!-- Already Approved Banner -->
+                        <template if:true={isAlreadyApproved}>
+                            <div class="warning-banner">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                                <span>{approvedBannerMessage}</span>
+                            </div>
+                        </template>
+
+                        <!-- Summary Cards -->
+                        <div class="summary-cards">
+                            <div class="summary-card">
+                                <div class="summary-label">Initial Amount</div>
+                                <div class="summary-value">₹ {initialTotalFormatted}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Revised Amount</div>
+                                <div class="summary-value highlight">₹ {revisedTotalFormatted}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Difference (per sqft)</div>
+                                <div class="summary-value difference">₹ {currentDifferenceFormatted}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Unit SBA</div>
+                                <div class="summary-value">{unitSBA} sqft</div>
+                            </div>
+                        </div>
+
+                        <!-- Approval Table Card -->
+                        <div class="table-card">
+                            
+                            <!-- Table Header with Reject Button -->
+                            <div class="table-header-bar">
+                                <div class="table-header-left">
+                                    <button class="btn-reject" onclick={handleRejectCostSheet} disabled={isRejectDisabled}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                                        </svg>
+                                        <span>Reject Cost Sheet</span>
+                                    </button>
+                                </div>
+                                <div class="table-header-right">
+                                    <span class="element-count">{pricingElementsCount} Pricing Elements</span>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="table-scroll-container">
+                                <table class="approval-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px; text-align: center;">S.No</th>
+                                            <th style="text-align: left; min-width: 180px;">Pricing Element</th>
+                                            <th style="text-align: center;">SBA</th>
+                                            <th style="text-align: right;">Rate (₹)</th>
+                                            <th style="text-align: right;">Actual Amount (₹)</th>
+                                            <th style="text-align: right;">STM Discount</th>
+                                            
+                                            <!-- SM Discount Column (Visible for SH and MD) -->
+                                            <template if:true={showSmDiscountColumn}>
+                                                <th style="text-align: right;">SM Discount</th>
+                                            </template>
+                                            
+                                            <!-- SH Discount Column (Visible for MD only) -->
+                                            <template if:true={showShDiscountColumn}>
+                                                <th style="text-align: right;">SH Discount</th>
+                                            </template>
+                                            
+                                            <th style="text-align: right; min-width: 160px;">Final Discount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={pricingElements} for:item="element" for:index="index">
+                                            <tr key={element.Id} class="table-row">
+                                                
+                                                <!-- Serial Number -->
+                                                <td style="text-align: center;">
+                                                    <span class="serial-number">{element.serialNumber}</span>
+                                                </td>
+                                                
+                                                <!-- Pricing Element Name -->
+                                                <td>
+                                                    <div class="pe-name-wrapper">
+                                                        <strong class="pe-name">{element.pricingElementName}</strong>
+                                                        <span class={element.peTypeBadgeClass}>{element.peType}</span>
+                                                    </div>
+                                                </td>
+                                                
+                                                <!-- SBA -->
+                                                <td style="text-align: center;">
+                                                    <span class="sba-value">{element.quantity}</span>
+                                                </td>
+                                                
+                                                <!-- Rate -->
+                                                <td style="text-align: right;">
+                                                    <span class="amount-cell">{element.formattedRate}</span>
+                                                </td>
+                                                
+                                                <!-- Actual Amount -->
+                                                <td style="text-align: right;">
+                                                    <span class="amount-cell">{element.formattedAmount}</span>
+                                                </td>
+                                                
+                                                <!-- STM Discount -->
+                                                <td style="text-align: right;">
+                                                    <template if:true={element.stmDiscount}>
+                                                        <span class="discount-cell stm">₹ {element.formattedStmDiscount}</span>
+                                                    </template>
+                                                    <template if:false={element.stmDiscount}>
+                                                        <span class="no-value">—</span>
+                                                    </template>
+                                                </td>
+                                                
+                                                <!-- SM Discount (Conditional) -->
+                                                <template if:true={showSmDiscountColumn}>
+                                                    <td style="text-align: right;">
+                                                        <template if:true={element.smDiscount}>
+                                                            <span class="discount-cell sm">₹ {element.formattedSmDiscount}</span>
+                                                        </template>
+                                                        <template if:false={element.smDiscount}>
+                                                            <span class="no-value">—</span>
+                                                        </template>
+                                                    </td>
+                                                </template>
+                                                
+                                                <!-- SH Discount (Conditional) -->
+                                                <template if:true={showShDiscountColumn}>
+                                                    <td style="text-align: right;">
+                                                        <template if:true={element.shDiscount}>
+                                                            <span class="discount-cell sh">₹ {element.formattedShDiscount}</span>
+                                                        </template>
+                                                        <template if:false={element.shDiscount}>
+                                                            <span class="no-value">—</span>
+                                                        </template>
+                                                    </td>
+                                                </template>
+                                                
+                                                <!-- Approval Discount Input -->
+                                                <td style="text-align: right;">
+                                                    <div class="input-wrapper">
+                                                        <div class="input-with-prefix">
+                                                            <span class="input-prefix">₹</span>
+                                                            <input 
+                                                                type="number" 
+                                                                class="discount-input"
+                                                                value={element.approvalDiscount}
+                                                                data-index={index}
+                                                                data-id={element.Id}
+                                                                onchange={handleApprovalDiscountChange}
+                                                                placeholder="0"
+                                                                min="0"
+                                                                max={element.maxDiscount}
+                                                                step="1"
+                                                                disabled={isAlreadyApproved}
+                                                            />
+                                                        </div>
+                                                        <template if:true={element.validationError}>
+                                                            <span class="validation-error">{element.validationError}</span>
+                                                        </template>
+                                                    </div>
+                                                </td>
+                                                
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="screen-footer">
+                            <button class="btn-back" onclick={handleBackToScreen1}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                                <span>Back</span>
+                            </button>
+                            <div class="footer-right">
+                                <button class="btn-secondary" onclick={handleClose}>
+                                    Cancel
+                                </button>
+                                <button class="btn-save" onclick={handleSaveApproval} disabled={isSaveDisabled}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span>Save & Approve</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+
+            </template>
+        </template>
+
+    </template>
+
+    <!-- Reject Confirmation Modal -->
+    <template if:true={showRejectModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-modal__header_empty">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleCancelReject}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                    </button>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="reject-modal-content">
+                        <div class="reject-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c23934" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h2 class="reject-title">Reject Cost Sheet?</h2>
+                        <p class="reject-message">
+                            This will reject the cost sheet <strong>{selectedCostSheetName}</strong> and clear all discount amounts. This action cannot be undone.
+                        </p>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={handleCancelReject}>Cancel</button>
+                    <button class="slds-button slds-button_destructive" onclick={handleConfirmReject}>Reject Cost Sheet</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

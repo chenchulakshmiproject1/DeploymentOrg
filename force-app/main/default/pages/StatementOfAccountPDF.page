@@ -1,0 +1,90 @@
+<apex:page controller="PDFController"
+           action="{!loadStatementData}"
+           renderAs="pdf"
+           showHeader="false"
+           sidebar="false">
+
+<h2 style="text-align:center;">
+STATEMENT OF ACCOUNT AS ON {!TODAY()}
+</h2>
+
+<b>Customer Name &amp; Address</b><br/>
+{!customerName}<br/>
+{!customerAddress}
+
+<br/><br/>
+
+<b>Builders Pvt Ltd</b><br/>
+Project: {!projectName}<br/>
+Unit No: {!unitNo}<br/>
+Block: {!towerCode}
+
+<br/><br/>
+    
+<h3>SCHEDULES</h3>
+
+<table border="1" width="100%">
+<tr>
+<th>Particular</th>
+<th>Total Billed</th>
+<th>Amount Received</th>
+<th>Amount Balance</th>
+</tr>
+
+<apex:repeat value="{!statementSchedules}" var="s">
+<tr>
+<td>{!s.particular}</td>
+<td>{!s.totalBilled}</td>
+<td>{!s.amountReceived}</td>
+<td>{!s.amountBalance}</td>
+</tr>
+</apex:repeat>
+
+<tr>
+<td><b>Total</b></td>
+<td>{!totalBilled}</td>
+<td>{!totalReceived}</td>
+<td>{!totalBalance}</td>
+</tr>
+
+</table>
+
+<br/><br/>
+
+<h3>Receipts</h3>
+
+<table border="1" width="100%">
+<tr>
+<th>Receipt No</th>
+<th>Receipt Date</th>
+<th>Payment Category</th>
+<th>Bank</th>
+<th>Amount</th>
+</tr>
+
+<apex:repeat value="{!statementReceipts}" var="r">
+<tr>
+<td>{!r.receiptNo}</td>
+<td>{!r.receiptDate}</td>
+<td>{!r.paymentCategory}</td>
+<td>{!r.bankName}</td>
+<td>{!r.amount}</td>
+</tr>
+</apex:repeat>
+
+<tr>
+<td colspan="4"><b>Total Amount Received</b></td>
+<td>{!totalReceiptAmount}</td>
+</tr>
+
+</table>
+
+<br/><br/>
+
+<i>This is a system generated document. Signature not required.</i>
+
+<br/><br/>
+
+
+
+</apex:page>

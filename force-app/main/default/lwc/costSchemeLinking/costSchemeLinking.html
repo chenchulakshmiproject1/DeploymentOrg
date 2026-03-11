@@ -1,0 +1,162 @@
+<template>
+  
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span class="title-icon">
+                        <lightning-icon icon-name="utility:link" size="medium"></lightning-icon>
+                    </span>
+                    <div>
+                        <h1>Cost Scheme Linking</h1>
+                        <span>Link cost sheet templates with payment schemes for each unit type</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-outline" onclick={uploadTemplate}>
+                    <lightning-icon icon-name="utility:upload" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Upload File</span>
+                </button>
+
+                <button class="btn-outline" onclick={downloadTemplate}>
+                    <lightning-icon icon-name="utility:download" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Download Template</span>
+                </button>
+                
+            
+
+                <input type="file" accept=".csv" class="upload" onchange={handleFileUpload} style="display:none;"/>
+            </div>
+        </div>
+
+        <div class="drop-zone"
+            ondragover={handleDragOver}
+            ondragleave={handleDragLeave}
+            ondrop={handleDrop}
+            onclick={openFilePicker}>
+
+            <div class="drop-content">
+                <lightning-icon icon-name="utility:link" size="large"></lightning-icon>
+                <p class="drop-title">Drag & drop your file here</p>
+                <p class="drop-sub">Supports .csv files up to 10MB</p>
+            </div>
+
+            <input type="file" accept=".csv" class="upload" onchange={handleFileUpload} style="display:none;" />
+        </div>
+
+        <template if:true={showHeaderErrors}>
+            <div class="error-summary">
+                <strong>Header Errors: </strong>{headerErrorMessage}
+            </div>
+        </template>
+        <!-- Error Summary -->
+        <template if:true={showErrorSummary}>
+            <div class="error-summary">
+                <strong>Rows with errors:</strong> {errorRowNumbers}
+            </div>
+        </template>
+
+        <template if:true={hasRowErrors}>
+            <div class="error-summary">
+                <strong>Row Errors: </strong>{rowErrorRows}
+            </div>
+        </template>
+
+        <template if:true={hasHeaders}>
+                <div class="content-area">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <template for:each={headers} for:item="header">
+                                <th key={header.label} class={header.class}>
+                                    {header.label}
+                                </th>
+                            </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={previewData} for:item="row">
+                                <tr key={row.id}>
+                                    <template for:each={row.cells} for:item="cell">
+                                        <td key={cell.value} class={cell.class}>
+                                            {cell.value}
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <template if:true={canSave}>
+                    <div class="slds-align_absolute-center">
+                    <button class="btn-primary" onclick={handleSave} style="padding: 10px 20px;border-radius:6px;margin-top:8px">
+                    
+                        <span>Save</span>
+                    </button></div>
+                </template>
+            </div>
+        </template>
+
+          <div class="project-filter">
+            <div class="project-dropdown" onclick={toggleDropdown}>
+                <span>{selectedProjectNames}</span>
+                <lightning-icon icon-name="utility:down" size="x-small" class="dropdown-icon">
+                </lightning-icon>
+            </div>
+            <template if:true={showDropdown}>
+                <div class="project-dropdown-list">
+                    <template for:each={projectOptions} for:item="proj">
+                        <div key={proj.value} class="project-option">
+                            <lightning-input
+                                type="checkbox"
+                                label={proj.label}
+                                value={proj.value}
+                                checked={proj.checked}
+                                onchange={handleProjectSelect}>
+                            </lightning-input>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <template if:true={hasExistingRecords}>
+    <div class="summary-card">
+        <span class="unit-count">{filteredRecords.length} Records</span>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Cost Scheme Linking Name</th>
+                    <th>Cost Sheet Template Name</th>
+                    <th>Payment Scheme</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={paginatedUnitData} for:item="row">
+                    <tr key={row.Id}>
+                        <td>{row.sNo}</td>
+                        <td>{row.CostSchemeLinkingName}</td>
+                        <td>{row.CostSheetTemplateName}</td>
+                        <td>{row.PaymentScheme}</td>
+                        <td>{row.CreatedDate}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+
+    <c-custom-pagination-component
+        class="unitPagination"
+        list={filteredRecords}
+        onpagechanged={jobPaginationCallback2}>
+    </c-custom-pagination-component>
+</template>
+    </div>
+</template>

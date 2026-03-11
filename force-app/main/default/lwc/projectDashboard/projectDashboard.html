@@ -1,0 +1,68 @@
+<template>
+
+<div class="dashboard-container">
+
+    <div class="header">
+        <h1>Project Configuration</h1>
+        <p>Set up your real estate project before going live. Complete all modules below.</p>
+    </div>
+
+    <div class="progress-card">
+
+        <div class="progress-header">
+            <div>
+                <h3>Setup Progress</h3>
+                <span>3 of 10 modules configured</span>
+            </div>
+
+            <div class="status-info">
+                <span class="done">✔ 3 Done</span>
+                <span class="progress">🕒 3 In Progress</span>
+                <span class="pending">○ 4 Pending</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:30%"></div>
+        </div>
+
+        <span class="progress-text">30% complete</span>
+
+    </div>
+
+
+    <div class="card-grid">
+
+<template for:each={modules} for:item="module">
+
+<div key={module.key}
+     class="module-card"
+     data-key={module.key}
+     onclick={handleCardClick}>
+
+    <div class="module-header">
+
+        <div class="icon-box">
+            <lightning-icon icon-name={module.icon} size="small"></lightning-icon>
+        </div>
+
+        <span class={module.statusClass}>
+            <span class="dot"></span>
+            {module.status}
+        </span>
+
+    </div>
+
+    <h3 class="module-name">{module.name}</h3>
+
+    <p>{module.description}</p>
+
+</div>
+
+</template>
+
+</div>
+
+</div>
+
+</template>

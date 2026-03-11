@@ -1,0 +1,43 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false" docType="html-5.0" controller="ChannelPartner_Controller">
+    <html>
+        <div ng-controller="cpptermsconditions_ctrl">
+            <head>
+                <c:Libraries />
+                <c:ChannelPartnerController />
+
+                <style>
+                    .title-color {
+                        color: #0B1E35;
+                    }
+                    .loading-message {
+                        text-align: center;
+                        color: #6c757d;
+                        font-size: 18px;
+                    }
+                    .content-container {
+                        text-align: justify;
+                        word-wrap: break-word;
+                        margin-left: 40px;
+                    }
+                    .terms{
+                        margin-right: 50px;
+                    }
+                    .slds-scope ol{
+                        list-style: auto !important;
+                        font-size: 15px !important;
+                    }
+                </style>
+            </head>
+            
+            <body>
+                <div class="container-fluid content-container">
+                    <h2 class="mb-4 title-color">Terms &amp; Conditions</h2>
+                    <p ng-show="isLoading" class="loading-message">Loading terms and conditions...</p>
+                    <div class="terms" ng-bind-html="terms">
+                    </div> 
+                    <!-- <div ng-bind-html="'1.&nbsp;In the event of any person signing this Application Form on behalf of purchaser(s) /firm/Company, such person shall submit proper documentation i.e. Authorization/Power of Attorney/ Board Resolution as may be applicable. Once the sign is affixed to the document the terms and conditions shall be irrevocable and binding.'"></div>-->
+                </div>
+            </body>
+        </div>
+    </html>
+</apex:page>

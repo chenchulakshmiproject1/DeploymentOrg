@@ -1,0 +1,77 @@
+<apex:page showHeader="false" standardStylesheets="false" sidebar="false" docType="html-5.0">
+    <html>
+        <div ng-controller="cppheader1_ctrl">
+            <head>
+                <!-- Include Bootstrap CSS -->
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"/>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+                <!-- Include Font Awesome -->
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+
+                <!-- Include Bootstrap Icons -->
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet" crossorigin="anonymous"/>
+                <c:ChannelPartnerController />
+                <style>
+                    .small-profile-photo {
+                        width: 100% !important;
+                        cursor: pointer !important;
+                    }
+                    .medium-bell-icon {
+                        font-size: 2rem !important; /* Adjust as needed for medium size */
+                    }
+                    .has-search .form-control {
+                        padding-left: 2.375rem !important;
+                        margin: 0 !important; /* Remove margin */
+                    }
+                    .has-search .form-control-feedback {
+                        position: absolute !important;
+                        z-index: 2 !important;
+                        display: block !important;
+                        width: 2.375rem !important;
+                        height: 2.375rem !important;
+                        line-height: 2.375rem !important;
+                        text-align: center !important;
+                        pointer-events: none !important;
+                        color: #aaa !important;
+                    }
+                    /* Hide elements on screens smaller than 1024px */
+                    @media (max-width: 1024px) {
+                        .hide-on-ipad {
+                            display: none !important;
+                        }
+                    }
+                </style>
+            </head>
+
+            <body>
+                <div class="container">
+                    <div class="row align-items-center py-3">
+                        <!-- Search bar -->
+                        <div class="col-12 col-md-8">
+                            <!-- <div class="form-group has-search">
+                                <span class="fa fa-search form-control-feedback"></span>
+                                <input type="text" class="form-control" placeholder="Search"/>
+                            </div> -->
+                        </div>
+                
+                        <!-- Bell icon (hidden on iPad Pro and similar devices) -->
+                        <div class="col-12 col-md-3 text-end hide-on-ipad">
+                            <!-- <i class="fa fa-bell medium-bell-icon"></i> -->
+                        </div>
+                
+                        <!-- Profile image (hidden on iPad Pro and similar devices) -->
+                        <div class="col-12 col-md-1 text-end hide-on-ipad">
+                            <a ng-click="loadprofilePage('profileDetails')">
+                                <img ng-if="profilePicId != ''" class="rounded-circle img-circle" style="height:50px;width:50px;" 
+                                     ng-src="{{profileUrl + profilePicId}}" width="40" height="40" alt="avatar"/>
+                                <img ng-if="profilePicId == ''" class="rounded-circle img-circle" style="height:50px;width:50px;" 
+                                     src="{!URLFOR($Resource.personProfile)}" width="40" height="40" alt="avatar"/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </div>
+    </html>
+</apex:page>

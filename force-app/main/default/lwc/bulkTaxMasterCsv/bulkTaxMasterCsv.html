@@ -1,0 +1,152 @@
+<template>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span class="title-icon">
+                        <lightning-icon icon-name="utility:money" size="medium"></lightning-icon>
+                    </span>
+                    <div>
+                        <h1>Tax Master Upload</h1>
+                        <span>Configure GST, stamp duty, registration and other tax components</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-outline" onclick={downloadTemplate}>
+                    <lightning-icon icon-name="utility:download" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Download Template</span>
+                </button>
+
+                <button class="btn-outline" onclick={uploadTemplate}>
+                    <lightning-icon icon-name="utility:upload" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Upload File</span>
+                </button>
+
+                <input type="file"
+                       accept=".csv"
+                       class="upload"
+                       onchange={handleFileUpload}
+                       style="display:none;" />
+            </div>
+        </div>
+        <div class="drop-zone"
+          ondragover={handleDragOver}
+          ondragleave={handleDragLeave}
+          ondrop={handleDrop}
+          onclick={uploadTemplate}>
+
+          <div class="drop-content">
+              <lightning-icon icon-name="utility:money" size="large"></lightning-icon>
+              <p class="drop-title">Drag & drop your file here</p>
+              <p class="drop-sub">Supports .csv files up to 10MB</p>
+          </div>
+
+          <input type="file"
+                accept=".csv"
+                class="upload"
+                onchange={handleFileUpload}
+                style="display:none;" />
+      </div>
+      <template if:true={showHeaderErrors}>
+    <div class="error-summary">
+        <strong>Header Errors: </strong>{headerErrorMessage}
+    </div>
+</template>
+        <!-- Error Summary -->
+        <template if:true={showErrorSummary}>
+            <div class="error-summary">
+                <strong>Rows with errors:</strong> {errorRowNumbers}
+            </div>
+        </template>
+
+        <!-- Preview Table -->
+        <template if:true={previewData.length}>
+            <div class="content-area">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <template for:each={columns} for:item="col">
+                                    <th key={col.label} class={col.class}>
+                                        {col.label}
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <template for:each={previewData} for:item="row">
+                                <tr key={row.rowKey}>
+                                    <template for:each={row.cells} for:item="c">
+                                        <td key={c.value} class={c.class}>
+                                            {c.value}
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="slds-align_absolute-center slds-m-top_small">
+                    <template if:true={showSubmit}>
+                        <button class="btn-primary"
+                                onclick={handleSubmit}
+                                disabled={disableSubmit}
+                                style="padding:10px 20px;border-radius:6px;">
+                            Save
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </template>
+    <template if:true={hasExistingRecords}>
+        <div class ="summary-card">
+            <span class ="unit-count">{existingRecords.length} Records</span>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Tax Master Name</th>
+                        <th>Tax Type</th>
+                        <th>Short Date</th>
+                        <th>From Date</th>
+                        <th>Taxable</th>
+                        <th>Tax</th>
+                        <th>Rounding Method</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+            <tbody>
+                 <template for:each={paginatedUnitData} for:item="row">
+                    <tr key={row.Id}>
+                        <td>{row.sNo}</td>
+                        <td>{row.Name}</td>
+                        <td>{row.TaxType}</td>
+                        <td>{row.ShortDate}</td>
+                        <td>{row.FromDate}</td>
+                        <td>{row.Taxable}</td>
+                        <td>{row.Tax}</td>
+                        <td>{row.RoundingMethod}</td>
+                        <td>{row.Active}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>      
+       <c-custom-pagination-component
+        class="unitPagination"
+        list={existingRecords}
+        onpagechanged={jobPaginationCallback2}>
+    </c-custom-pagination-component>
+        </div>
+    </template>                   
+ </div>
+</template>

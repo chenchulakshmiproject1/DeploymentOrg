@@ -1,0 +1,90 @@
+<apex:page controller="PDFController" renderAs="pdf" showHeader="false" sidebar="false">
+
+    <div style="text-align:right;">
+        <img src="{!$Resource.utillogo3}" width="120"/>
+        <br/>
+        Date: {!TODAY()}
+    </div>
+
+    <br/>
+
+    <b>{!customerName}</b><br/>
+    Mobile No: {!mobileNo}<br/><br/>
+
+    Dear Sir / Madam,<br/><br/>
+
+    <b>Subject:</b> {!subject}<br/><br/>
+
+    We are glad to inform you that the construction of your apartment is in progress. 
+    Further we would like to inform you that below amount is now due in our records.
+
+    <br/><br/>
+
+    <table border="1" width="100%" cellpadding="5">
+        <tr>
+            <th>Payment Schedules</th>
+            <th>%</th>
+            <th>Due Date</th>
+            <th>Due Amount</th>
+            <th>Taxes</th>
+            <th>Total Schedule Due Amount</th>
+        </tr>
+
+        <apex:repeat value="{!paymentSchedules}" var="p">
+            <tr>
+                <td>{!p.name}</td>
+                <td>{!p.percent}</td>
+                <td>{!p.dueDate}</td>
+                <td>{!p.amount}</td>
+                <td>{!p.tax}</td>
+                <td>{!p.total}</td>
+            </tr>
+        </apex:repeat>
+    </table>
+
+    <br/>
+
+    <table border="1" width="100%" cellpadding="5">
+        <tr>
+            <td>Total Schedule Amount Due</td>
+            <td>{!totalScheduleAmount}</td>
+        </tr>
+        <tr>
+            <td>Less Total Receipts</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td><b>Balance Payable</b></td>
+            <td><b>{!totalScheduleAmount}</b></td>
+        </tr>
+    </table>
+
+    <br/><br/>
+
+    We hereby request you to make the above said payment through NEFT/RTGS/Cheque/DD favoring  
+    <b>REAL BUILDERS PVT LTD</b>
+
+    <br/><br/>
+
+    Bank: {!bankName}<br/>
+    A/c No: {!accountNo}<br/>
+    IFSC Code: {!ifscCode}
+
+    <br/><br/>
+
+    Request you to make the payment on or before {!dueDate}
+
+    <br/><br/>
+
+    Assuring you of our Best and Prompt Services at all time.
+
+    <br/><br/>
+
+    Best Regards,<br/>
+    {!currentUser}
+
+    <br/><br/>
+
+    Report generated in Salesforce on {!NOW()}
+
+</apex:page>

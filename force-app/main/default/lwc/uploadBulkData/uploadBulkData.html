@@ -1,0 +1,86 @@
+<template>
+    <div class="main-container slds-grid">
+
+        <template if:true={isSidebarVisible}>
+            <div class="sidebar">
+                <div class="sidebar-navigation-bar">
+                    <div class="slds-align_absolute-center slds-p-around_x-small">
+                        <img src={logoUrl} alt="Logo" class="sidebar-logo">
+                    </div>
+                    <template for:each={sidebarItems} for:item="item">
+                        <div key={item.key}
+                            class="sidebar-item slds-p-around_medium slds-m-around_small"
+                            data-key={item.key}
+                            onclick={handleClick}>
+                            <lightning-icon icon-name={item.icon} size="small" class="slds-m-right_small"></lightning-icon>
+                            {item.label}
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <div class="mobile-sidebar slds-hide_large slds-small-size_12-of-12">
+            <template for:each={sidebarItems} for:item="item">
+                <div key={item.key}
+                    class="mobile-sidebar-item slds-p-horizontal_large slds-p-vertical_small"
+                    data-key={item.key}
+                    onclick={handleClick}>
+                    {item.label}
+                </div>
+            </template>
+        </div>
+
+        <div class="content slds-large-size_10-of-12 slds-small-size_12-of-12 slds-p-around_small">
+
+             <template if:true={isDashboard}>
+                <c-project-dashboard onnavigate={handleDashboardNavigate}></c-project-dashboard>
+            </template>
+
+            <template if:true={isInventoryUpload}>
+                <c-bulk-upload-project-data></c-bulk-upload-project-data>
+            </template>
+
+            <template if:true={isTaxMaster}>
+                <c-bulk-tax-master-csv></c-bulk-tax-master-csv>
+            </template>
+
+            <template if:true={isPaymentSchedule}>
+                <c-bulk-payment-schedule-csv></c-bulk-payment-schedule-csv>
+            </template>
+
+            <template if:true={isPricingElements}>
+                <c-bulk-pricing-element-csv></c-bulk-pricing-element-csv>
+            </template>
+
+            <template if:true={isCostSheetTemplate}>
+                <c-cost-sheet-csv-upload></c-cost-sheet-csv-upload>
+            </template>
+
+            <template if:true={isPaymentSchemes}>
+                <c-bulk-payment-scheme-csv></c-bulk-payment-scheme-csv>
+            </template>
+
+            <template if:true={isCostSchemeLinking}>
+                <c-cost-scheme-linking></c-cost-scheme-linking>
+            </template>
+
+            <template if:true={isOpportunityStages}>
+                <c-opportunity-stage-customization></c-opportunity-stage-customization>
+            </template>
+
+            <template if:true={isUserManagement}>
+                <!-- User Management component goes here -->
+            </template>
+
+            <template if:true={isSiteVisitConfig}>
+                <c-site-visit-config></c-site-visit-config>
+            </template>
+            
+            <template if:true={isIntegrationConfig}>
+                <c-integration-configuration></c-integration-configuration>
+            </template>
+
+        </div>
+    </div>
+</template>

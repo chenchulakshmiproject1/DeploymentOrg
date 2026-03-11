@@ -1,0 +1,16 @@
+<template>
+    <div>
+        <div class="row mt-3">
+            <div class="col-md-5">
+                <label class="label">Enter Email or Phone</label>
+                <input type="text" class="form-control mt-2" />
+            </div>
+            <div class="col-md-7 mt-4">
+                <button class="button" onclick={getleadDet}>Search</button>
+                <button class="button"  onclick={createLead}><i class="fa fa-plus"></i>  Create New Lead</button> 
+                <button class="button"  id="btnSubmit1" onclick={OnClickcreateVisit}>Create Visit</button>
+                <button class="button" id="btnPleaseWait1" style="text-align: center; display:none;"><i class="fa-solid fa-spinner fa-spin-pulse me-3"></i>Please Wait....</button>
+            </div>
+        </div>
+    </div>
+</template>

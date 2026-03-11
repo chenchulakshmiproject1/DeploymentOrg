@@ -1,0 +1,388 @@
+<apex:page controller="AllotmentLetterVFController" renderAs="pdf" applyBodyTag="false">
+
+<html>
+<head>
+
+<style>
+
+body{
+    font-family: Arial;
+    font-size:12px;
+}
+
+/* HEADER TABLE (NO BORDER) */
+.header-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.header-table td{
+    border:none;
+}
+
+.logo{
+    width:120px;
+}
+
+/* HEADER BOX */
+.company-box{
+    border:1px solid #9aa7b8;
+    padding:12px;
+    text-align:center;
+}
+
+.company-title{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.section{
+    margin-top:15px;
+}
+
+/* DETAILS TABLE */
+.details-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.details-table td{
+    padding:5px;
+    border:none;
+}
+
+/* ALL OTHER TABLES */
+.main-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:8px;
+}
+
+.main-table th,
+.main-table td{
+    border:1px solid #444;
+    padding:6px;
+}
+
+/* LABEL COLUMN */
+.label{
+    width:160px;
+    font-weight:bold;
+}
+
+/* TERMS */
+.terms{
+    margin-top:20px;
+    line-height:1.6;
+}
+.header-container{
+width:100%;
+margin-bottom:20px;
+}
+
+.logo-section{
+display:inline-block;
+width:120px;
+vertical-align:top;
+}
+
+.logo{
+width:100px;
+height:auto;
+}
+
+.header-info{
+display:inline-block;
+width:450px;
+vertical-align:top;
+border:1px solid #8fa2b8;
+padding:10px;
+text-align:center;
+}
+
+.company-title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:4px;
+}
+
+.company-address{
+font-size:12px;
+}
+
+.header-line{
+margin:8px 0;
+}
+
+.letter-title{
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header-container">
+
+    <div class="logo-section">
+<img src="{!$Resource.utillogo3}" width="200" class="logo"/>    </div>
+
+    <div class="header-info">
+
+        <div class="company-title">
+Utilitarian Labs Private Limited    
+    </div>
+
+        <div class="company-address">
+           Ground floor, Vakil Square, Bannerghatta Rd, KEB Colony
+        </div>
+
+        <div class="company-address">
+             1st Stage, BTM Layout, Bengaluru, Karnataka 560029
+        </div>
+
+        <hr class="header-line"/>
+
+        
+    </div>
+    
+</div>
+<div class="letter-title" style="font-weight:bold;font-size:20px;tex-align:center;padding-left:40%">
+    Allotment Letter
+</div>
+
+<!-- APPLICANT DETAILS -->
+
+<div class="section">
+
+<table class="details-table">
+
+<tr>
+<td class="label"><strong>Applicant Name</strong></td>
+<td>: {!applicantName}</td>
+</tr>
+
+<tr>
+<td class="label"><strong>Co-applicant Name</strong></td>
+<td>: {!coApplicantName}</td>
+</tr>
+
+<tr>
+<td class="label"><strong>Address</strong></td>
+<td>: {!addressName}</td>
+</tr>
+
+<tr>
+<td class="label"><strong>Pin-code</strong></td>
+<td>: {!pinCodeNumber}</td>
+</tr>
+
+<tr>
+<td class="label"><strong>E-mail</strong></td>
+<td>: {!emailId}</td>
+</tr>
+
+<tr>
+<td class="label"><strong>Phone (R)</strong></td>
+<td>: {!phoneNumber}</td>
+</tr>
+
+</table>
+
+</div>
+
+
+<!-- INTRO -->
+
+<div class="section">
+
+<b style="margin-top:2%">Dear Sir / Madam</b>
+
+<br/><br/>
+
+<b>Sub: Allotment of Apartment</b>
+
+<br/><br/>
+
+With reference to your application for allotment we are pleased to inform that you have been allotted an apartment of your choice, the details of which are mentioned here below.
+
+</div>
+
+
+<!-- UNIT DETAILS -->
+
+<div class="section">
+
+<table class="main-table" style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;margin:2% 0%">
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Project</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!projectName}</td>
+
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Block</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!blockName}</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Floor</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!floorName}</td>
+
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Apartment No.</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!apartmentNo}</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Apartment Type</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!apartmentTypeName}</td>
+
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Saleable Area</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;widht:100px">{!saleableAreaName}</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>Car Park Details</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;" colspan="3">{!carParkingDetails}</td>
+</tr>
+
+</table>
+
+</div>
+
+
+<!-- PAYMENT SCHEDULE -->
+
+<div class="section">
+
+Please find enclosed herewith the payment schedule payables towards the said apartment.
+
+</div>
+
+<div class="section">
+
+<table class="main-table" style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;margin:2% 0%">
+
+<tr>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Sl. No</th>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Installment</th>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Milestone</th>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Amount</th>
+</tr>
+
+<apex:variable var="rowNum" value="{!0}" />
+
+<apex:repeat value="{!paymentScheduleList}" var="p">
+
+<apex:variable var="rowNum" value="{!rowNum + 1}" />
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!rowNum}</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!p.sequence}</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!p.installment}</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">{!p.amount}</td>
+</tr>
+
+</apex:repeat>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;" colspan="3"><b>Total Flat Cost</b></td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;"><b>{!totalFlatCost}</b></td>
+</tr>
+
+</table>
+
+</div>
+
+
+<!-- TERMS -->
+
+<div class="terms">
+
+<ol>
+
+<li>
+In case any change, please inform us within 10 days from the date of receipt of this Allotment Letter.
+</li>
+
+<li>
+In the event of cancellation after allotment but before entry into agreement for sale and the amount mentioned in the table hereunder written would be deducted and balance amount payable shall be refunded to you without any interest within 45 days from the date of receipt of your letter requesting to cancel the said booking.
+
+<table class="main-table" style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse; margin:2% 0%">
+
+<tr>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Sl. No.</th>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">If the letter requesting to cancel the booking is received</th>
+<th style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Amount to be deducted</th>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">1</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Within 15 days from issuance of the allotment letter</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">NIL</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">2</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Between 16 to 30 days from issuance of the allotment letter</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">1% of the cost of the said unit</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">3</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">Between 31 to 60 days from issuance of the allotment letter</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">1.5% of the cost of the said unit</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">4</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">After 61 days from issuance of the allotment letter</td>
+<td style="border: 1px solid rgb(56, 55, 55); border-collapse: collapse;">2% of the cost of the said unit</td>
+</tr>
+
+</table>
+
+</li>
+
+<li>
+This allotment letter shall not be construed to limit your rights and interest upon execution and registration of the agreement for sale between ourselves and yourselves.
+</li>
+
+<li>
+In case of delay in making any payments you shall be liable to pay interest at the State Bank of India highest Marginal Cost of Lending Rate plus two percent.
+</li>
+
+<li>
+The sanctioned plans, layout plans, along with specifications approved by the competent Authority are available at the project site and have also been uploaded on K-RERA website.
+</li>
+
+<li>
+Transfer of agreements after entering into sale agreement will be considered with a transfer fee.
+</li>
+
+<li>
+In all your future correspondence please quote the Project Name, Block Name and Apartment number.
+</li>
+
+</ol>
+
+<br/>
+
+Thanking you and assuring our best services at all time
+
+<br/><br/>
+
+<b>For Utilitarian Labs Private Limited</b>
+
+<br/><br/>
+
+<b>Authorised Signatory</b>
+<br/>
+Ajeet Kumar
+
+</div>
+
+</body>
+</html>
+
+</apex:page>

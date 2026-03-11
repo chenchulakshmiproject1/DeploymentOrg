@@ -1,0 +1,212 @@
+.main-div{
+    max-width:90%;
+    margin:auto;
+    display: grid;
+    margin: 1% 20%;
+}
+
+/* SEARCH SECTION */
+
+.search-container{
+    display:flex;
+    align-items:flex-end;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.input-section{
+    display:flex;
+    flex-direction:column;
+    width:550px;
+}
+
+.label,
+.slds-form-element__label{
+    font-size:14px;
+    font-weight:600;
+    color:#181818;
+}
+
+/* INPUT */
+
+.input{
+    width:100%;
+    height:35px;
+    padding:6px 10px;
+    border:1px solid #d8dde6;
+    border-radius:4px;
+    background:#f7f7f7;
+}
+
+/* BUTTONS */
+
+.button-section{
+    display:flex;
+    gap:10px;
+}
+
+.button{
+    /* background:#dd8435; */
+    color:white;
+    /* border:none; */
+    padding:8px auto;
+    border-radius:4px;
+    font-size:15px;
+    cursor:pointer;
+}
+
+
+
+/* SECTION DIVIDER */
+
+/* .row{
+    margin-top:25px;
+} */
+
+.border{
+    border-top:1px solid #d8dde6;
+    margin:20px 0;
+}
+
+/* FORM GRID */
+
+.row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.col-md-6{
+    width:48%;
+    display:flex;
+    flex-direction:column;
+}
+
+/* LIGHTNING INPUT HEIGHT */
+
+lightning-input{
+    width:100%;
+}
+
+lightning-input .slds-input{
+    height:35px;
+}
+
+/* HEADINGS */
+
+h5{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+/* TABLE */
+
+.table-res{
+    margin-top:10px;
+    margin-bottom: 10px;
+
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table-header-custom{
+    background:#e4e8ef;
+}
+
+.table th{
+    padding:10px;
+    text-align:left;
+    font-size:14px;
+    border-right:1px solid #d8dde6;
+}
+
+.table td{
+    padding:10px;
+    border-top:1px solid #e3e3e3;
+    border-right:1px solid #e3e3e3;
+    font-size:14px;
+}
+
+.table tr:hover{
+    background:#f7f7f7;
+}
+
+.table a{
+    color:#1a73e8;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+.table a:hover{
+    text-decoration:underline;
+}
+
+.checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    white-space:nowrap;
+    margin-bottom: 5px;
+}
+/* .section{
+    background:#ffffff;
+    border:1px solid #d8dde6;
+    border-radius:6px;
+    padding:16px;
+    margin-bottom:20px;
+}
+
+.section-title{
+    background:#0176d3;
+    color:white;
+    font-weight:600;
+    padding:8px 12px;
+    border-radius:4px;
+    margin-bottom:18px;
+}
+
+/* Two columns */
+
+/* .field{
+    width:48%;
+    display:inline-block;
+    vertical-align:top;
+    margin-bottom:18px;  
+} */
+
+
+/* .field:nth-child(even){
+    margin-right:4%;
+} */ 
+
+
+/* .field lightning-input,
+.field lightning-combobox,
+.field lightning-dual-listbox{
+    width:100%;
+} */
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+/* @media(max-width:768px){
+
+    .field{
+        width:100%;
+        margin-right:0;
+    }
+
+} */
+.my-multipicklist-dropdown{
+    max-height:200px;
+    overflow:auto;
+    width:100%;
+    padding:6px 10px;
+    font-size:12px;
+    scrollbar-width:none;
+}

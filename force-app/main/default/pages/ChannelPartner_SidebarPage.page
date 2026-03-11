@@ -1,0 +1,355 @@
+<apex:page showHeader="false" standardStylesheets="false" lightningStylesheets="false" sidebar="false" docType="html-5.0" controller="ChannelPartner_Controller">
+    <html>
+        <!-- <div ng-controller="cpp_dashboard_ctrl"> -->
+            <head>
+                <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+                <meta http-equiv="Pragma" content="no-cache" />
+                <meta http-equiv="Expires" content="0" />
+                <c:Libraries />
+                <script>
+                    var tabValues = JSON.parse('{!tabValues}');
+                    var userId = '{!$CurrentPage.parameters.id}';
+                    if(userId != localStorage.getItem('hashCode')){
+                        window.location.href = window.location.href.includes('/apex') ? '/apex' : '/ChannelPartnerPortal';
+                    }
+                    var statusValue = JSON.parse('{!status}');
+                </script>
+                <c:ChannelPartnerController />
+               
+
+
+                <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"/>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous"/>
+                <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script> -->
+                
+            <style>
+                body {
+                    overflow-x: hidden;
+                    margin: 0;
+                    padding: 0;
+                }
+                .modal-backdrop {
+                    opacity: 0.5 !important;
+                }
+                .sidebar {
+                    height: 100vh;
+                    max-width: 270px;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    background-color: #1F1E1E;
+                    padding-top: 20px;
+                    overflow-y: auto;
+                    transition: transform 0.3s ease-in-out;
+                    z-index: 1000;
+                }
+                .sidebar::-webkit-scrollbar {
+                    width: 0px;
+                    background: transparent;
+                }
+                .sidebar {
+                    scrollbar-width: none;
+                }
+                .sidebar .nav-link {
+                    color: #ffffff;
+                    padding: 15px 20px;
+                    transition: background-color 0.3s, border-left 0.3s;
+                }
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background-color: white;
+                    color: #1F1E1E;
+                    border-left: 4px solid #9D6200;
+                }
+                .sidebar-header {
+                    padding: 10px;
+                    background: #1F1E1E;
+                }
+                .sidebar-header img {
+                    width: 50%;
+                }
+                .content {
+                    margin-left: 270px;
+                    padding: 0px;
+                    transition: margin-left 0.3s ease-in-out;
+                    min-height:55rem;
+                }
+                .fixed-header {
+                    position: fixed;
+                    top: 0;
+                    left: 250px;
+                    right: 0;
+                    height: 70px;
+                    background-color: #fff;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                }
+                .content-body {
+                    height: calc(100vh - 70px);
+                    padding-right: 10px;
+                }
+                .hidden {
+                    display: none;
+                }
+                .sidebar-open {
+                    transform: translateX(0);
+                }
+                @media (max-width: 768px) {
+                    .sidebar {
+                        transform: translateX(-100%);
+                    }
+                    .sidebar-open {
+                        transform: translateX(0);
+                    }
+                    .fixed-header {
+                        left: 0;
+                    }
+                    .content {
+                        margin-left: 0;
+                    }
+                    .content-open {
+                        /*margin-left: 250px;*/
+                    }
+                }
+        
+                /* Hamburger Icon Styles */
+                .navbar-toggler .animated-icon {
+                    display: inline-block;
+                    width: 30px;
+                    height: 22px;
+                    position: relative;
+                }
+        
+                .navbar-toggler .line {
+                    display: block;
+                    width: 100%;
+                    height: 4px;
+                    background-color: #9D6200;
+                    position: absolute;
+                    left: 0;
+                    transition: all 0.3s ease-in-out;
+                }
+        
+                .navbar-toggler .line1 {
+                    top: 0;
+                }
+        
+                .navbar-toggler .line2 {
+                    top: 9px;
+                }
+        
+                .navbar-toggler .line3 {
+                    top: 18px;
+                }
+        
+                .navbar-toggler.open .line1 {
+                    transform: rotate(45deg);
+                    top: 9px;
+                }
+        
+                .navbar-toggler.open .line2 {
+                    opacity: 0;
+                }
+        
+                .navbar-toggler.open .line3 {
+                    transform: rotate(-45deg);
+                    top: 9px;
+                }
+        
+                /* Additional Styles for Buttons */
+                .modal-body {
+                    text-align: center;
+                }
+        
+                .modal-buttons {
+                    display: flex;
+                    justify-content: center;
+                    gap: 10px;
+                    margin-top: 20px;
+                }
+        
+                .btn-close-modal {
+                    background-color: #1F1E1E!important;
+                    color: white!important;
+                    font-weight: 500!important;
+                }
+        
+                .btn-logout {
+                    background-color: #9D6200!important;
+                    color: white!important;
+                    font-weight: 500!important;
+                }
+                .slds-scope h2{
+                    font-size: 2em !important;
+                }
+                .slds-scope h4{
+                    font-size: 2em !important;
+                }
+                .slds-scope:not(html),.slds-scope body {
+                    font-size: 1em !important;
+                    background: transparent !important;
+                }
+                .slds-scope h5 {
+                    margin: 10px !important;
+                    padding: 0 !important;
+                    font-size: 1.5em !important;
+                }
+                .slds-scope p{
+                    margin-bottom: 10px !important;
+                    margin-top: 10px !important;
+                }
+                .content-body {
+                    height: 100%;
+                    padding-right: 10px;
+                }
+            </style>
+            </head>
+
+<body ng-app="channelpartner_app" ng-controller="cpp_dashboard_ctrl">
+    <div id="app" ng-init="init()">
+        <!-- Navbar for mobile toggle -->
+        <nav class="navbar navbar-light bg-light d-lg-none d-flex justify-content-between align-items-center">
+            <button class="navbar-toggler me-3" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle sidebar" ng-click="toggleSidebar()">
+                <span class="animated-icon">
+                    <span class="line line1"></span>
+                    <span class="line line2"></span>
+                    <span class="line line3"></span>
+                </span>
+            </button>
+            <div class="d-flex align-items-center ms-auto">
+                <!-- <i class="fa fa-bell" style="font-size: 1rem; cursor: pointer;"></i> -->
+                <a ng-click="loadprofilePage('profileDetails')">
+                    <img ng-if="profilePicId != ''" class="rounded-circle" style="height:40px; width:40px;" 
+                         ng-src="{{profileUrl + profilePicId}}" width="40" height="40" alt="avatar"/> <!-- Set profile size to 40px -->
+                    <img ng-if="profilePicId == ''" class="rounded-circle" style="height:40px; width:40px;" 
+                         src="{!URLFOR($Resource.personProfile)}" width="40" height="40" alt="avatar"/> <!-- Set profile size to 40px -->
+                </a>
+            </div>
+        </nav>                                          
+
+        
+        <div class="sidebar" id="sidebar" ng-class="{'sidebar-open': isSidebarOpen}">
+            <div class="sidebar-header text-center">
+                <img src="{!URLFOR($Resource.SNNLogoPng)}" alt="SNN Logo" />
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_DashboardPage" ng-click="setActive('dashboard')" ng-class="{'active': activeTab === 'dashboard'}"><i class="fa fa-home me-2"></i>Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_LeadPage" ng-click="setActive('leads')" ng-class="{'active': activeTab === 'leads'}"><i class="fa fa-user-circle me-2"></i>Leads</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_SiteVisit" ng-click="setActive('siteVisit')" ng-class="{'active': activeTab === 'siteVisit'}"><i class="fa fa-user-circle me-2"></i>Site Visits</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_MyTeamPage" ng-click="setActive('myTeam')" ng-class="{'active': activeTab === 'myTeam'}"><i class="fa fa-users me-2"></i>My Team</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_ProjectsPage" ng-click="setActive('projects')" ng-class="{'active': activeTab === 'projects'}"><i class="fa fa-folder-open me-2"></i>Projects</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_MarketingPage" ng-click="setActive('marketing')" ng-class="{'active': activeTab === 'marketing'}"><i class="fa fa-bullhorn me-2"></i>Marketing</a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_BrokerageCalculatorPage" ng-click="setActive('brokerageCalculator')" ng-class="{'active': activeTab === 'brokerageCalculator'}"><i class="fa fa-calculator me-2"></i>Brokerage Calculator</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_AvailabilityPage" ng-click="setActive('availability')" ng-class="{'active': activeTab === 'availability'}"><i class="fa fa-check-square me-2"></i>Availability</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_TicketsPage" ng-click="setActive('tickets')" ng-class="{'active': activeTab === 'tickets'}"><i class="fa fa-check-square me-2"></i>Tickets</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_EventsPage" ng-click="setActive('events')" ng-class="{'active': activeTab === 'events'}"><i class="fa fa-calendar me-2"></i>Events</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_MyInvoicesPage" ng-click="setActive('myInvoices')" ng-class="{'active': activeTab === 'myInvoices'}"><i class="fa-solid fa-file-invoice me-2"></i>My Invoices</a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_AboutUsPage" ng-click="setActive('aboutUs')" ng-class="{'active': activeTab === 'aboutUs'}"><i class="fa fa-info-circle me-2"></i>About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#/ChannelPartner_TermsConditionPage" ng-click="setActive('termsConditions')" ng-class="{'active': activeTab === 'termsConditions'}"><i class="fa fa-file-contract me-2"></i>Terms &amp; Conditions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" ng-click="openLogoutModal()"><i class="fa fa-sign-out-alt me-2"></i>Logout</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Content -->
+        <div class="content" ng-class="{'content-open': isSidebarOpen}" ng-click="closeSideBar()">
+            <apex:include pageName="ChannelPartner_HeaderPage"/>
+            <div class="content-body" id="content-body">
+                <!-- Content Sections -->
+                <div ng-show="activeTab === 'dashboard'">
+                    <apex:include pageName="ChannelPartner_DashboardPage"/>
+                </div>
+                <div ng-show="activeTab === 'leads'">
+                    <apex:include pageName="ChannelPartner_LeadPage"/>
+                </div>
+                <div ng-show="activeTab === 'siteVisit'">
+                    <apex:include pageName="ChannelPartner_SiteVisit"/>
+                </div>
+                <div ng-show="activeTab === 'myTeam'">
+                    <apex:include pageName="ChannelPartner_MyTeamPage"/>
+                </div>
+                <div ng-show="activeTab === 'marketing'">
+                    <apex:include pageName="ChannelPartner_MarketingPage"/>
+                </div>
+                <div ng-show="activeTab === 'brokerageCalculator'">
+                    <apex:include pageName="ChannelPartner_BrokerageCalculatorPage"/>
+                </div>
+                <div ng-show="activeTab === 'projects'">
+                    <apex:include pageName="ChannelPartner_ProjectsPage"/>
+                </div>
+                <div ng-show="activeTab === 'availability'">
+                    <apex:include pageName="ChannelPartner_AvailabilityPage"/>
+                </div>
+                <div ng-show="activeTab === 'tickets'">
+                    <apex:include pageName="ChannelPartner_TicketsPage"/>
+                </div>
+                <div ng-show="activeTab === 'events'">
+                    <apex:include pageName="ChannelPartner_EventsPage"/>
+                </div>
+                <div ng-show="activeTab === 'myInvoices'">
+                    <apex:include pageName="ChannelPartner_MyInvoicesPage"/>
+                </div>
+                <div ng-show="activeTab === 'aboutUs'">
+                    <apex:include pageName="ChannelPartner_AboutUsPage"/>
+                </div>
+                <div ng-show="activeTab === 'termsConditions'">
+                    <apex:include pageName="ChannelPartner_TermsConditionPage"/>
+                </div>
+                
+                <!-- Profile Details Page - Hidden by default -->
+                <div ng-show="activeTab === 'profileDetails'">
+                    <apex:include pageName="ChannelPartner_ProfileDetailsPage"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Modal -->
+        <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" id="logoutModalContent">
+                    <div class="modal-body">
+                        <h5 class="modal-title" id="logoutModalLabel">Logout?</h5>
+                        <p>You are about to log out of your SNN Estates account. Thank you for using our portal, and we look forward to your return.</p>
+                        <img src="{!URLFOR($Resource.logoutImage)}" alt="Logout Image" class="img-fluid mb-4" style="max-width: 100px;" />
+                        <!-- Inline Buttons -->
+                        <div class="modal-buttons">
+                            <button type="button" class="btn btn-close-modal" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-logout" ng-click="logout()">Log out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+        <!-- </div> -->
+    </html>
+</apex:page>

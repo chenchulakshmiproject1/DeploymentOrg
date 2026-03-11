@@ -1,0 +1,86 @@
+<template>
+    <div class="container">
+
+        <div class="head-tab-div">
+            <!-- Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <div class="icon"><lightning-icon icon-name="utility:description" size="medium"></lightning-icon></div>
+
+                    <div class="title-text">
+                        <h1>Site Visit Form Config</h1>
+                        <p>Configure which fields appear on the site visit form</p>
+                    </div>
+                </div>
+            </div>
+
+            <lightning-tabset>
+                <lightning-tab label="Lead" value="Lead" onactive={handleActivetab}></lightning-tab>
+                <lightning-tab label="Visit" value="Visit" onactive={handleActivetab}></lightning-tab>
+            </lightning-tabset>
+
+        </div>
+
+
+        <div class="config-wrapper">
+
+            <template for:each={sections} for:item="section">
+
+                <!-- Section -->
+                <div key={section.name} class="section-card">
+
+                    <!-- Section Title -->
+                    <div class="section-title">
+                        {section.name}
+                    </div>
+
+                    <!-- Fields -->
+                    <template for:each={section.fields} for:item="field">
+
+                        <div key={field.Id} class="field-row">
+
+                            <!-- Drag -->
+                            <div class="drag-icon">
+                                ⋮⋮
+                            </div>
+
+                            <!-- Field Info -->
+                            <div class="field-info">
+
+                                <div class="field-label">
+                                    {field.Field_Label__c}
+                                </div>
+
+                                <div class="field-type">
+                                    {field.Field_Type__c}
+                                </div>
+
+                            </div>
+
+                            <!-- Preview -->
+                            <lightning-icon
+                                icon-name="utility:preview"
+                                size="x-small"
+                                class="eye-icon">
+                            </lightning-icon>
+
+                            <!-- Toggle -->
+                            <lightning-input
+                                type="toggle"
+                                checked={field.Is_Visible__c}
+                                data-id={field.Id}
+                                onchange={handleToggle}>
+                            </lightning-input>
+
+                        </div>
+
+                    </template>
+
+                </div>
+
+            </template>
+            
+        </div>
+
+    </div>
+</template>

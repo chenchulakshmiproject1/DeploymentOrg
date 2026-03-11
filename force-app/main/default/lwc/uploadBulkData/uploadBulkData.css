@@ -1,0 +1,78 @@
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #0b1f3a 0%, #0e2a4f 100%);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+    padding: 16px 12px;
+    scrollbar-width: none;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar-item {
+    display: flex;
+    flex-direction: row;
+    font-size: 15px;
+    font-weight: 600;
+    color: #c9d4e5;
+    cursor: pointer;
+    border-radius: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar-item lightning-icon {
+    --sds-c-icon-color-foreground-default: #c9d4e5;
+}
+
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.sidebar-item:hover lightning-icon {
+    --sds-c-icon-color-foreground-default: #ffffff;
+}
+
+.sidebar-item.active {
+    background: #0f3d6b;
+    color: #2fd3b5;
+}
+
+.sidebar-item.active lightning-icon {
+    --sds-c-icon-color-foreground-default: #2fd3b5;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+    height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.main-container {
+    height: 80vh;
+    overflow: hidden;
+}
+.sidebar {
+    height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}

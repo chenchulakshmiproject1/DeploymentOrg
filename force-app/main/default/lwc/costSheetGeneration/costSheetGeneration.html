@@ -1,0 +1,1159 @@
+<template>
+    <template if:true={firstScreen}>
+        <template if:true={showErrorBlock}>
+            <div class="error-container slds-p-around_medium">
+                <div class="slds-notify slds-notify_alert slds-alert_error"
+                    role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <span
+                        class="slds-icon_container slds-icon-utility-error slds-m-right_x-small">
+                        <lightning-icon icon-name="utility:error"
+                            alternative-text="Error" variant="inverse"
+                            size="small"></lightning-icon>
+                    </span>
+                    <h2 class="slds-text-heading_small">{errorMessage}</h2>
+                </div>
+            </div>
+        </template>
+        <template if:false={showErrorBlock}>
+            <template if:true={isDataLoaded}>
+                <div class="slds-p-around_medium">
+
+                    <h2
+                        style="padding: 12px;background-color: #693C5E; color:white; border-radius:5px;margin-bottom:2%;"
+                        class="slds-text-heading_medium slds-text-align_center">Generate
+                        Cost Sheet</h2>
+
+                    <template if:false={defaultUnit}>
+                        <c-resusable-lookup label="Select Unit"
+                            selected-icon-name="custom:custom64"
+                            object-label="Unit"
+                            object-api-name="Unit__c"
+                            field-api-name="Unit_Name__c"
+                            other-field-api-name="Name"
+                            parent-record-id={recordId}
+                            parent-field-api-name="Project_Code__c"
+                            onvalueselected={handleChangeUnit}
+                            value={selectedUnitId} disabled={isUnitDisabled}>
+                        </c-resusable-lookup>
+                    </template>
+
+                    <template if:true={defaultUnit}>
+                        <lightning-record-picker label="Select Unit"
+                            value={selectedUnitId} record-id-field="Id"
+                            object-api-name="Unit__c"
+                            onchange={handleChangeUnit}
+                            disabled={isUnitDisabled}>
+                        </lightning-record-picker>
+                    </template>
+
+                    <div class="dropdown">
+                        <lightning-input label="Cost Sheet Template"
+                            placeholder="Type to search..." value={searchKey}
+                            onchange={handleSearchChange}
+                            onclick={toggleDropdown}></lightning-input>
+
+                        <template if:true={isDropdownOpen}>
+                            <div class="dropdown-options">
+                                <template for:each={filteredTemplateOptions}
+                                    for:item="option">
+                                    <div key={option.value}
+                                        class="dropdown-option"
+                                        onclick={handleOptionClick}
+                                        data-value={option.value}>
+                                        {option.label}
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div
+                        class="slds-grid slds-grid_align-end slds-p-top_medium">
+                        <lightning-button variant="brand"
+                            disabled={isNextDisabled} label="Next"
+                            onclick={handleNext}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </template>
+
+    <template if:true={secondScreen}>
+        <div class="second-screen-container">
+
+            <!-- Summary Cards -->
+            <div class="summary-cards-wrapper">
+
+                <div class="summary-card">
+                    <div class="summary-card-header">
+                        <div class="summary-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="#693C5E" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 7h8M9 3h6l1 4H8l1-4z"></path>
+                                <path
+                                    d="M7 7c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="summary-card-label">Amount Excl. Taxes</div>
+                    <div class="summary-card-value">₹ {realAmount}</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-header">
+                        <div class="summary-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="#693C5E" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="4" width="22" height="16" rx="2"
+                                    ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="summary-card-label">Total Tax Amount</div>
+                    <div class="summary-card-value">₹ {taxAmount}</div>
+                </div>
+
+                <div class="summary-card total-card">
+                    <div class="summary-card-header">
+                        <div class="summary-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="#c9a227" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="summary-card-label">Total Amount (Incl.
+                        Taxes)</div>
+                    <div class="summary-card-value">₹
+                        {formattedTotalAmount}</div>
+                </div>
+
+            </div>
+
+            <!-- Pricing Elements Table Card -->
+            <div class="pricing-table-card" style="position: relative;">
+
+                <!-- Loading Overlay -->
+                <template if:true={isLoading}>
+                    <div class="loading-overlay">
+                        <div class="loading-content">
+                            <lightning-spinner alternative-text="Loading"
+                                size="medium"></lightning-spinner>
+                            <div class="loading-text">Loading pricing
+                                elements...</div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Table Header Bar -->
+                <div class="table-header-bar">
+                    <div class="table-header-left">
+                        <div class="table-header-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="#ffffff" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                        </div>
+                        <h2 class="table-header-title">Pricing Elements</h2>
+                    </div>
+                    <template if:true={pricingElements}>
+                        <span class="table-header-count">{pricingElementsCount}
+                            Items</span>
+                    </template>
+                </div>
+
+                <!-- Pricing Elements Table -->
+                <template if:true={pricingElements}>
+                    <div class="table-scroll-container">
+                        <table class="pricing-table">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style="width: 50px; text-align: center;">S.No</th>
+                                    <th
+                                        style="text-align: left; min-width: 180px;">Pricing
+                                        Element</th>
+                                    <th style="text-align: center;">SBA</th>
+                                    <th style="text-align: right;">Rate (₹)</th>
+                                    <th style="text-align: center;">Sub
+                                        Type</th>
+                                    <th style="text-align: right;">Amount
+                                        (₹)</th>
+                                    <th
+                                        style="text-align: right; min-width: 140px;">Discount
+                                        (psft)</th>
+                                    <th
+                                        style="text-align: right; min-width: 140px;">Discount
+                                        (LS)</th>
+                                    <th style="text-align: right;">Final Amount
+                                        (₹)</th>
+                                    <th style="text-align: right;">Tax (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={pricingElements}
+                                    for:item="element" for:index="index">
+                                    <tr key={element.tempId} class="table-row">
+
+                                        <!-- Serial Number -->
+                                        <td style="text-align: center;">
+                                            <span
+                                                class="serial-number">{element.serialNumber}</span>
+                                        </td>
+
+                                        <!-- Pricing Element Name -->
+                                        <td class="col-name">
+                                            <span
+                                                class="pe-name">{element.Pricing_Element_Master__r.Name}</span>
+                                            <!-- Description Input (Optional - Collapsed) -->
+                                            <template
+                                                if:true={element.showDescription}>
+                                                <div
+                                                    class="description-input-wrapper">
+                                                    <input
+                                                        type="text"
+                                                        class="description-input"
+                                                        value={element.Description__c}
+                                                        data-index={index}
+                                                        data-field="Description__c"
+                                                        onchange={handleDescriptionChange}
+                                                        placeholder="Add description..."
+                                                        maxlength="255" />
+                                                </div>
+                                            </template>
+                                        </td>
+
+                                        <!-- Saleable Area (SBA) -->
+                                        <td style="text-align: center;">
+                                            <span
+                                                class="sba-value">{element.Quantity__c}</span>
+                                        </td>
+
+                                        <!-- Rate -->
+                                        <td class="col-number"
+                                            style="text-align: right;">
+                                            <template if:true={element.Rate__c}>
+                                                <span
+                                                    class="amount-cell">{element.formattedRate}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.Rate__c}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- PE Type Badge -->
+                                        <td class="col-center"
+                                            style="text-align: center;">
+                                            <span
+                                                class={element.peTypeBadgeClass}>{element.PE_Type__c}</span>
+                                        </td>
+
+                                        <!-- Amount (Before Discount) -->
+                                        <td class="col-number amount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.Amount__c}>
+                                                <span
+                                                    class="amount-cell">{element.formattedAmount}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.Amount__c}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Discount (psft) - Only for non-LS items -->
+                                        <td class="col-number discount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.isDiscountPsftEditable}>
+                                                <div
+                                                    class="discount-input-wrapper">
+                                                    <input
+                                                        type="number"
+                                                        class="discount-input inline"
+                                                        value={element.Discount_Psft__c}
+                                                        data-field="Discount_Psft__c"
+                                                        data-index={index}
+                                                        onchange={handleDiscountPsftChange}
+                                                        placeholder="—"
+                                                        min="0"
+                                                        step="0.01" />
+
+                                                    <template
+                                                        if:true={element.discountPsftError}>
+                                                        <span
+                                                            class="limit-exceed-error">
+                                                            {element.discountPsftError}
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            <template
+                                                if:false={element.isDiscountPsftEditable}>
+                                                <span
+                                                    class="no-value disabled-cell">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Discount (LS) - Only for LS items -->
+                                        <td class="col-number discount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.isDiscountLsEditable}>
+                                                <div
+                                                    class="discount-input-wrapper">
+                                                    <input
+                                                        type="number"
+                                                        class="discount-input inline"
+                                                        value={element.Discount_LS__c}
+                                                        data-field="Discount_LS__c"
+                                                        data-index={index}
+                                                        onchange={handleDiscountLsChange}
+                                                        placeholder="—"
+                                                        min="0"
+                                                        step="0.01" />
+
+                                                    <template
+                                                        if:true={element.discountLsError}>
+                                                        <span
+                                                            class="limit-exceed-error">
+                                                            {element.discountLsError}
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            <template
+                                                if:false={element.isDiscountLsEditable}>
+                                                <span
+                                                    class="no-value disabled-cell">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Final Amount (After Discount) -->
+                                        <td class="col-number final-amount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.FinalAmount}>
+                                                <span
+                                                    class="amount-cell final">{element.formattedFinalAmount}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.FinalAmount}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Tax Amount (Calculated on Final Amount) -->
+                                        <td class="col-number tax-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.Tax_Amount__c}>
+                                                <span
+                                                    class="amount-cell tax">{element.formattedTaxAmount}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.Tax_Amount__c}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                    </tr>
+                                </template>
+                            </tbody>
+
+                            <!-- Table Footer with Totals -->
+                            <tfoot>
+                                <tr class="totals-row">
+                                    <td colspan="5"
+                                        style="text-align: right; font-weight: 600;">
+                                        Totals:
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span
+                                            class="total-value">{initialTotalFormatted}</span>
+                                    </td>
+                                    <td colspan="2" style="text-align: center;">
+                                        <!-- Discount columns total not needed -->
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span
+                                            class="total-value final">{revisedTotalFormatted}</span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span
+                                            class="total-value tax">{totalTaxFormatted}</span>
+                                    </td>
+                                </tr>
+                                <tr class="difference-row">
+                                    <td colspan="8"
+                                        style="text-align: right; font-weight: 600; color: #693C5E;">
+                                        Difference (per sqft):
+                                    </td>
+                                    <td colspan="2"
+                                        style="text-align: left; padding-left: 20px;">
+                                        <span class="difference-value">₹
+                                            {differencePerSqft}</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Footer with Next Button -->
+                    <div class="table-footer">
+                        <div class="footer-info">
+                            <template if:true={hasDiscountApplied}>
+                                <span class="discount-indicator">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        width="16" height="16"
+                                        viewBox="0 0 24 24" fill="none"
+                                        stroke="#2e844a" stroke-width="2">
+                                        <path
+                                            d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline
+                                            points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                    Discount Applied
+                                </span>
+                            </template>
+                        </div>
+                        <button class="next-btn" onclick={handleThirdScreen}
+                            disabled={hasValidationErrors}>
+                            <span>Pick Parking Details</span>
+                            <svg class="next-btn-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </template>
+
+                <!-- No Data State -->
+                <template if:false={pricingElements}>
+                    <div class="no-data-container">
+                        <div class="no-data-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28"
+                                height="28" viewBox="0 0 24 24" fill="none"
+                                stroke="#693C5E" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <p class="no-data-text">No Pricing Elements found for
+                            this unit.</p>
+                    </div>
+                </template>
+
+            </div>
+
+        </div>
+    </template>
+
+    <template if:true={thirdScreen}>
+        <div class="third-screen-container">
+
+            <!-- Header Card with Add Button -->
+            <div class="parking-header-card">
+                <div class="parking-header-left">
+                    <div class="parking-header-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                            height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="#ffffff" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"
+                                ry="2"></rect>
+                            <path d="M9 17V7h4a3 3 0 0 1 0 6H9"></path>
+                        </svg>
+                    </div>
+                    <div class="parking-header-text">
+                        <h2>Parking Details</h2>
+                        <p>Add extra parking slots for this unit</p>
+                    </div>
+                </div>
+                <button class="add-parking-btn" onclick={handleParking}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>Add Parking Details</span>
+                </button>
+            </div>
+
+            <!-- Available Parking Cards -->
+            <template if:true={parkingDetailTable}>
+                <div class="parking-availability-wrapper">
+
+                    <!-- Single Parking Card -->
+                    <div class="parking-availability-card single-parking">
+                        <div class="parking-card-header">
+                            <div class="parking-card-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="#28a745"
+                                    stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline
+                                        points="16 12 12 8 8 12"></polyline>
+                                    <line x1="12" y1="16" x2="12" y2="8"></line>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="parking-card-label">Single Parking
+                            Available</div>
+                        <div
+                            class="parking-card-value">{availableSingleParking}</div>
+                    </div>
+
+                    <!-- Dual Parking Card -->
+                    <div class="parking-availability-card dual-parking">
+                        <div class="parking-card-header">
+                            <div class="parking-card-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="#17a2b8"
+                                    stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path
+                                        d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline
+                                        points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="parking-card-label">Dual Parking
+                            Available</div>
+                        <div
+                            class="parking-card-value">{availableDualParking}</div>
+                    </div>
+
+                </div>
+
+                <!-- Parking Table Card -->
+                <div class="parking-table-card">
+
+                    <!-- Table Header Bar -->
+                    <div class="parking-table-header-bar">
+                        <div class="parking-table-header-left">
+                            <div class="parking-table-header-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="#ffffff"
+                                    stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="1" y="3" width="15"
+                                        height="13"></rect>
+                                    <polygon
+                                        points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                    <circle cx="18.5" cy="18.5"
+                                        r="2.5"></circle>
+                                </svg>
+                            </div>
+                            <h2 class="parking-table-header-title">Extra Parking
+                                Allocation</h2>
+                        </div>
+                        <div class="parking-table-header-right">
+                            <span class="parking-table-header-count">Default:
+                                {defaultParkingDisplay} Parking Included</span>
+                            <!-- Add Row Button - Only show if less than 2 rows -->
+                            <template if:true={canAddParkingRow}>
+                                <button class="add-row-btn"
+                                    onclick={handleAddParkingRow}>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        width="16" height="16"
+                                        viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12"
+                                            y2="19"></line>
+                                        <line x1="5" y1="12" x2="19"
+                                            y2="12"></line>
+                                    </svg>
+                                    <span>Add Row</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Table Content -->
+                    <div class="parking-table-scroll-container">
+                        <table class="parking-table">
+                            <thead>
+                                <tr>
+                                    <th>Parking Type <span
+                                            class="required-asterisk">*</span></th>
+                                    <th>Quantity <span
+                                            class="required-asterisk">*</span></th>
+                                    <th>Amount (₹) <span
+                                            class="required-asterisk">*</span></th>
+                                    <th>Discount (LS)</th>
+                                    <th>Tax %</th>
+                                    <th>Tax Amount (₹)</th>
+                                    <th>Final Amount (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template if:true={hasParkingRows}>
+                                    <template for:each={parkingRows}
+                                        for:item="row" for:index="index">
+                                        <tr key={row.id}>
+                                            <!-- Parking Type Dropdown (Required) -->
+                                            <td class="parking-type-cell">
+                                                <lightning-combobox
+                                                    name="parkingType"
+                                                    value={row.parkingType}
+                                                    options={row.availableOptions}
+                                                    placeholder="Select Type"
+                                                    data-index={index}
+                                                    onchange={handleParkingTypeChange}
+                                                    variant="label-hidden"
+                                                    required>
+                                                </lightning-combobox>
+                                                <template
+                                                    if:true={row.typeError}>
+                                                    <span
+                                                        class="field-error">{row.typeError}</span>
+                                                </template>
+                                            </td>
+
+                                            <!-- Quantity (Required) -->
+                                            <td class="quantity-input-cell">
+                                                <lightning-input
+                                                    type="number"
+                                                    name="quantity"
+                                                    value={row.quantity}
+                                                    data-index={index}
+                                                    onchange={handleParkingRowQuantityChange}
+                                                    variant="label-hidden"
+                                                    min="1"
+                                                    required>
+                                                </lightning-input>
+                                                <template
+                                                    if:true={row.quantityError}>
+                                                    <span
+                                                        class="field-error">{row.quantityError}</span>
+                                                </template>
+                                            </td>
+
+                                            <!-- Amount (User Input - Required) -->
+                                            <td class="amount-input-cell">
+                                                <lightning-input
+                                                    type="number"
+                                                    name="amount"
+                                                    value={row.amount}
+                                                    data-index={index}
+                                                    onchange={handleParkingRowAmountChange}
+                                                    variant="label-hidden"
+                                                    min="1"
+                                                    formatter="decimal"
+                                                    required>
+                                                </lightning-input>
+                                                <template
+                                                    if:true={row.amountError}>
+                                                    <span
+                                                        class="field-error">{row.amountError}</span>
+                                                </template>
+                                            </td>
+
+                                            <!-- Discount (LS) -->
+                                            <td class="discount-col">
+                                                <div
+                                                    class="discount-input-wrapper">
+                                                    <input
+                                                        type="number"
+                                                        class="discount-input"
+                                                        value={row.discountLs}
+                                                        data-index={index}
+                                                        onchange={handleParkingRowDiscountChange}
+                                                        placeholder="0"
+                                                        min="0"
+                                                        step="0.01" />
+                                                    <template
+                                                        if:true={row.discountError}>
+                                                        <span
+                                                            class="limit-exceed-error">{row.discountError}</span>
+                                                    </template>
+                                                </div>
+                                            </td>
+
+                                            <!-- Tax Percentage -->
+                                            <td class="tax-info-cell">
+                                                <span class="tax-label">CGST:
+                                                    <span
+                                                        class="tax-value">{parkingCGSTtax}%</span></span>
+                                                <span class="tax-label">SGST:
+                                                    <span
+                                                        class="tax-value">{parkingSGSTtax}%</span></span>
+                                            </td>
+
+                                            <!-- Tax Amount -->
+                                            <td class="parking-amount-cell tax">
+                                                <lightning-formatted-number
+                                                    value={row.taxAmount}
+                                                    format-style="decimal"
+                                                    maximum-fraction-digits="2">
+                                                </lightning-formatted-number>
+                                            </td>
+
+                                            <!-- Final Amount (After Tax) -->
+                                            <td
+                                                class="parking-amount-cell final">
+                                                <lightning-formatted-number
+                                                    value={row.finalAmount}
+                                                    format-style="decimal"
+                                                    maximum-fraction-digits="2">
+                                                </lightning-formatted-number>
+                                            </td>
+
+                                            <!-- Action - Delete Row -->
+                                            <td class="action-cell">
+                                                <lightning-button-icon
+                                                    icon-name="utility:delete"
+                                                    variant="bare"
+                                                    alternative-text="Delete"
+                                                    data-index={index}
+                                                    onclick={handleDeleteParkingRow}>
+                                                </lightning-button-icon>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </template>
+
+                                <!-- No Rows Message -->
+                                <template if:false={hasParkingRows}>
+                                    <tr>
+                                        <td colspan="8" class="no-rows-message">
+                                            <div class="no-rows-content">
+                                                <span>No extra parking added.
+                                                    Click "Add Row" to add
+                                                    parking.</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Parking Summary -->
+                    <div class="parking-summary-row">
+                        <div class="parking-summary-card total">
+                            <div class="summary-content">
+                                <span class="summary-label">Total Parking
+                                    Spaces</span>
+                                <span
+                                    class="summary-value">{totalParkingSpaces}</span>
+                            </div>
+                        </div>
+                        <div class="parking-summary-card single">
+                            <div class="summary-content">
+                                <span class="summary-label">Single
+                                    Parking</span>
+                                <span
+                                    class="summary-value">{calculatedSingleCount}</span>
+                            </div>
+                        </div>
+                        <div class="parking-summary-card dual">
+                            <div class="summary-content">
+                                <span class="summary-label">Dual Parking</span>
+                                <span
+                                    class="summary-value">{calculatedDualCount}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </template>
+
+            <!-- No Parking Details Message -->
+            <template if:true={noParkingDetails}>
+                <div class="no-parking-message">
+                    <div class="no-parking-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                            height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="#856404" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <p class="no-parking-text">No Parking Details Available for
+                        this Unit. Please contact the administrator if you
+                        believe this is an error.</p>
+                </div>
+            </template>
+
+            <!-- Footer with Back and Next Buttons -->
+            <div class="parking-footer">
+                <button class="back-btn" onclick={handleFourthScreenBack}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Pricing</span>
+                </button>
+                <button class="continue-btn" onclick={handleFouth}
+                    disabled={hasParkingValidationError}>
+                    <span>Continue to Review</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </template>
+
+    <template if:true={fourthScreen}>
+        <div class="fourth-screen-container">
+
+            <!-- Grand Total Card -->
+            <div class="grand-total-card">
+                <div class="grand-total-left">
+                    <div class="grand-total-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28"
+                            height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#ffffff" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2"
+                                ry="2"></rect>
+                            <path
+                                d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+                            <path d="M10 11h4"></path>
+                        </svg>
+                    </div>
+                    <div class="grand-total-info">
+                        <h3>Grand Total (Incl. Taxes)</h3>
+                        <p class="grand-total-amount">₹
+                            {formattedTotalAmount}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Elements Table Card -->
+            <div class="fourth-table-card">
+
+                <!-- Table Header Bar -->
+                <div class="fourth-table-header-bar">
+                    <div class="fourth-table-header-left">
+                        <div class="fourth-table-header-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="#ffffff" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                        </div>
+                        <h2 class="fourth-table-header-title">All Pricing
+                            Elements</h2>
+                    </div>
+                    <template if:true={hasPricingElements}>
+                        <span
+                            class="fourth-table-header-count">{pricingElementsCount}
+                            Items</span>
+                    </template>
+                </div>
+
+                <!-- Table Content -->
+                <template if:true={hasPricingElements}>
+                    <div class="fourth-table-scroll-container">
+                        <table class="fourth-table">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style="width: 50px; text-align: center;">S.No</th>
+                                    <th
+                                        style="text-align: left; min-width: 180px;">Pricing
+                                        Element</th>
+                                    <th style="text-align: center;">SBA</th>
+                                    <th style="text-align: right;">Rate (₹)</th>
+                                    <th style="text-align: center;">Sub
+                                        Type</th>
+                                    <th style="text-align: right;">Amount
+                                        (₹)</th>
+                                    <th
+                                        style="text-align: right; min-width: 140px;">Discount
+                                        (psft)</th>
+                                    <th
+                                        style="text-align: right; min-width: 140px;">Discount
+                                        (LS)</th>
+                                    <th style="text-align: right;">Final Amount
+                                        (₹)</th>
+                                    <th style="text-align: right;">Tax (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={pricingElements}
+                                    for:item="element" for:index="index">
+                                    <tr key={element.tempId} class="table-row">
+
+                                        <!-- Serial Number -->
+                                        <td style="text-align: center;">
+                                            <span
+                                                class="serial-number">{element.serialNumber}</span>
+                                        </td>
+
+                                        <!-- Pricing Element Name -->
+                                        <td class="col-name">
+                                            <span
+                                                class="pe-name">{element.Pricing_Element_Master__r.Name}</span>
+                                        </td>
+
+                                        <!-- Saleable Area (SBA) -->
+                                        <td style="text-align: center;">
+                                            <span
+                                                class="sba-value">{element.Quantity__c}</span>
+                                        </td>
+
+                                        <!-- Rate -->
+                                        <td class="col-number"
+                                            style="text-align: right;">
+                                            <template if:true={element.Rate__c}>
+                                                <span
+                                                    class="amount-cell">{element.formattedRate}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.Rate__c}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- PE Type Badge -->
+                                        <td class="col-center"
+                                            style="text-align: center;">
+                                            <span
+                                                class={element.peTypeBadgeClass}>{element.PE_Type__c}</span>
+                                        </td>
+
+                                        <!-- Amount (Before Discount) -->
+                                        <td class="col-number amount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.Amount__c}>
+                                                <span
+                                                    class="amount-cell">{element.formattedAmount}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.Amount__c}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Discount (psft) - Display Only -->
+                                        <td class="col-number discount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.isDiscountPsftEditable}>
+                                                <template
+                                                    if:true={element.Discount_Psft__c}>
+                                                    <span
+                                                        class="amount-cell discount">₹
+                                                        {element.formattedDiscountPsft}</span>
+                                                </template>
+                                                <template
+                                                    if:false={element.Discount_Psft__c}>
+                                                    <span
+                                                        class="no-value">—</span>
+                                                </template>
+                                            </template>
+                                            <template
+                                                if:false={element.isDiscountPsftEditable}>
+                                                <span
+                                                    class="no-value disabled-cell">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Discount (LS) - Display Only -->
+                                        <td class="col-number discount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.isDiscountLsEditable}>
+                                                <template
+                                                    if:true={element.Discount_LS__c}>
+                                                    <span
+                                                        class="amount-cell discount">₹
+                                                        {element.formattedDiscountLs}</span>
+                                                </template>
+                                                <template
+                                                    if:false={element.Discount_LS__c}>
+                                                    <span
+                                                        class="no-value">—</span>
+                                                </template>
+                                            </template>
+                                            <template
+                                                if:false={element.isDiscountLsEditable}>
+                                                <span
+                                                    class="no-value disabled-cell">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Final Amount (After Discount) -->
+                                        <td class="col-number final-amount-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.FinalAmount}>
+                                                <span
+                                                    class="amount-cell final">{element.formattedFinalAmount}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.FinalAmount}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                        <!-- Tax Amount (Calculated on Final Amount) -->
+                                        <td class="col-number tax-col"
+                                            style="text-align: right;">
+                                            <template
+                                                if:true={element.Tax_Amount__c}>
+                                                <span
+                                                    class="amount-cell tax">{element.formattedTaxAmount}</span>
+                                            </template>
+                                            <template
+                                                if:false={element.Tax_Amount__c}>
+                                                <span class="no-value">—</span>
+                                            </template>
+                                        </td>
+
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <!-- Table Footer with Totals -->
+                            <tfoot>
+                                <tr class="totals-row">
+                                    <td colspan="5"
+                                        style="text-align: right; font-weight: 600;">
+                                        Totals:
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span class="total-value">
+                                            {initialTotalFormatted}</span>
+                                    </td>
+                                    <td colspan="2" style="text-align: center;">
+                                        <!-- Discount columns total not needed -->
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span class="total-value final">
+                                            {revisedTotalFormatted}</span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span class="total-value tax">
+                                            {totalTaxFormatted}</span>
+                                    </td>
+                                </tr>
+                                <tr class="difference-row">
+                                    <td colspan="8"
+                                        style="text-align: right; font-weight: 600; color: #693C5E;">
+                                        Difference (per sqft):
+                                    </td>
+                                    <td colspan="2"
+                                        style="text-align: left; padding-left: 20px;">
+                                        <span class="difference-value">₹
+                                            {differencePerSqft}</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </template>
+
+                <!-- No Data State -->
+                <template if:false={hasPricingElements}>
+                    <div class="fourth-no-data">
+                        <div class="fourth-no-data-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28"
+                                height="28" viewBox="0 0 24 24" fill="none"
+                                stroke="#693C5E" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <p class="fourth-no-data-text">No Pricing Elements
+                            found.</p>
+                    </div>
+                </template>
+
+            </div>
+
+            <!-- Footer with Back and Save Buttons -->
+            <div class="fourth-footer">
+                <button class="fourth-back-btn" onclick={handleBack}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18"
+                        height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Parking</span>
+                </button>
+
+                <template if:true={discountAdded}>
+                    <button class="fourth-save-btn approval"
+                        disabled={isFinalSaveDisabled}
+                        onclick={handleFinalSave}>
+
+                        <span>Save & Submit for Approval</span>
+                    </button>
+                </template>
+
+                <template if:false={discountAdded}>
+                    <button class="fourth-save-btn"
+                        disabled={isFianlSaveDisabled}
+                        onclick={handleFinalSave}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18"
+                            height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        <span>Save Cost Sheet</span>
+                    </button>
+                </template>
+            </div>
+
+        </div>
+    </template>
+</template>

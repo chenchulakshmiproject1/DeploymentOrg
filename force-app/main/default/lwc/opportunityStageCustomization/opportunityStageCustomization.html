@@ -1,0 +1,279 @@
+<template>
+    <div class="container">
+        <!-- Header Section with Icon and Add Stage Button -->
+        <div class="page-header">
+            <div class="page-title">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span class="title-icon">
+                        <lightning-icon icon-name="utility:share" size="medium"></lightning-icon>
+                    </span>    
+                <div>
+                        <h1>Opportunity Stage Customisation</h1>
+                        <span>Configure pipeline stages and automation triggers</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" >
+                    <lightning-icon icon-name="utility:add" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Add Stage</span>
+                </button>
+            </div>
+            
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-container">
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="spinner-container">
+                    <lightning-spinner alternative-text="Loading" size="medium">
+                    </lightning-spinner>
+                </div>
+            </template>
+            
+            <!-- Error Message - shown when not loading and error exists -->
+            <template if:false={isLoading}>
+                <template if:true={error}>
+                    <div class="error-message">
+                        <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                        <span>{error}</span>
+                    </div>
+                </template>
+            </template>
+            
+            <!-- Stages Container - shown when not loading and no error -->
+            <template if:false={isLoading}>
+                <template if:false={error}>
+                    <div class="stages-vertical-container">
+                        <template for:each={stages} for:item="stage" for:index="stageIndex">
+                            <div key={stage.stageName} class="stage-wrapper">
+                                <!-- Stage Header with Colored Bullet -->
+                                <div class="stage-header">
+                                    <div class="stage-title">
+                                        <!-- <span class="bullet" style={stage.bulletStyle}>●</span> -->
+                                        <h2 class="stage-name">{stage.stageName}</h2>
+                                    </div>
+                                    <div class="stage-actions">
+    <span class="selection-counter">
+        {stage.selectedCount}/{stage.totalTasks} selected
+    </span>
+
+    <button class="slds-button slds-button_icon"
+        title="Add Task"
+        data-stage-name={stage.stageName}
+        onclick={handleAddTaskClick}>
+        <lightning-icon icon-name="utility:add" size="x-small"></lightning-icon>
+    </button>
+
+    <button class="slds-button slds-button_icon"
+        title="Delete Task"
+        data-stage-name={stage.stageName}
+        onclick={handleDeleteTaskClick}>
+        <lightning-icon icon-name="utility:delete" size="x-small"></lightning-icon>
+    </button>
+</div>
+                                </div>
+                                
+                                <!-- Tasks List -->
+                                <div class="tasks-container">
+                                    <template for:each={stage.tasks} for:item="task" for:index="taskIndex">
+                                        <div key={task.id} class="task-item">
+                                            <!-- Checkbox (Selection Option) -->
+                                            <label class="checkbox-container">
+                                                <input type="checkbox"
+                                                    data-stage-index={stageIndex}
+                                                    data-task-index={taskIndex}
+                                                    checked={task.selected}
+                                                    onchange={handleTaskSelection}
+                                                    class="task-checkbox-input">
+                                                <span class="checkbox-custom"></span>
+                                            </label>
+                                            
+                                            <!-- Task Logo (Grey Color) -->
+                                            <lightning-icon icon-name="standard:task"
+                                                        size="x-small"
+                                                        class="task-icon-grey">
+                                            </lightning-icon>
+                                            
+                                            <!-- Task Subject -->
+                                            <span class="task-subject">{task.subject}</span>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- No Tasks Message -->
+                                    <template if:true={stage.tasks}>
+                                        <div class="no-tasks">
+                                            <lightning-icon icon-name="utility:info" size="xx-small"></lightning-icon>
+                                            <span>No tasks configured for this stage</span>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <!-- Selection Counter (below tasks, aligned right) -->
+                            <template if:true={stage.tasks}>
+                                    <div class="selection-counter">
+                                        {stage.selectedCount}/{stage.totalTasks} selected
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </template>
+        </div>
+        
+        <!-- Footer with Selection Summary Only -->
+        <div class="footer-section">
+            <div class="footer-center">
+                <template if:true={hasSelectedTasks}>
+                    <span class="selection-summary">{selectionSummary}</span>
+                </template>
+            </div>
+        </div>
+    </div>
+<!-- Add Task Modal -->
+<template if:true={isModalOpen}>
+    <div class="modal-overlay" onclick={handleOverlayClick}>
+        <div class="modal-container" onclick={handleModalClick}>
+            <!-- Modal Header with Orange Background -->
+            <div class="modal-header orange-header">
+                <h2 class="slds-align_absolute-center" style="font-weight: 600;">Add Task Master</h2>
+                <button class="modal-close-btn" onclick={closeModal} title="Close">
+                    <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <div class="form-container">
+                    <!-- Hidden Fields Info (Visual indicator only) -->
+                    <div class="hidden-fields-info">
+                        <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+                        <span>Selected the Stage as: {selectedStageName}</span>
+                    </div>
+                    
+                    <!-- Task Subject (Required) -->
+                    <div class="form-row">
+                        <label class="form-label">Task Subject <span class="required">*</span></label>
+                        <div class="form-control">
+                            <lightning-input
+                                type="text"
+                                placeholder="Enter task subject"
+                                value={taskSubjectValue}
+                                onchange={handleTaskSubjectChange}
+                                variant="label-hidden">
+                            </lightning-input>
+                        </div>
+                    </div>
+
+                    <!-- Remarks Long Text Area -->
+                    <div class="form-row">
+                        <label class="form-label">Remarks</label>
+                        <div class="form-control">
+                            <lightning-textarea
+                                placeholder="Enter remarks here..."
+                                value={remarksValue}
+                                onchange={handleRemarksChange}
+                                variant="label-hidden"
+                                max-length="32768">
+                            </lightning-textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Is Active Checkbox (Standalone) -->
+                    <div class="form-row">
+                        <label class="form-label">Is Active</label>
+                        <div class="form-control checkbox-control">
+                            <label class="checkbox-wrapper-single">
+                                <input type="checkbox" 
+                                       checked={isActiveValue}
+                                       onchange={handleIsActiveChange}/>
+                    
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Is Common Task Checkbox (Standalone) -->
+                    <div class="form-row">
+                        <label class="form-label">Is Common Task</label>
+                        <div class="form-control checkbox-control">
+                            <label class="checkbox-wrapper-single">
+                                <input type="checkbox" 
+                                       checked={isCommonTaskValue}
+                                       onchange={handleIsCommonTaskChange}/>
+                                
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="slds-button slds-button_neutral" onclick={closeModal}>
+                    Cancel
+                </button>
+                <button class="slds-button slds-button_brand create-btn" 
+                        onclick={handleCreateTask}
+                        disabled={isSaving}>
+                    <template if:false={isSaving}>
+                        Create Task Master
+                    </template>
+                    <template if:true={isSaving}>
+                        <lightning-spinner size="x-small"></lightning-spinner>
+                        Creating...
+                    </template>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+    <!-- Delete Confirmation Modal -->
+    <template if:true={isDeleteModalOpen}>
+        <div class="modal-overlay" onclick={closeDeleteModal}>
+            <div class="modal-container delete-modal" onclick={handleModalClick}>
+              
+                <div class="modal-header orange-header">
+                    <h1 class="slds-align_absolute-center" style="font-weight: 600;">Confirm Delete</h1>
+                    <button class="modal-close-btn" onclick={closeDeleteModal} title="Close">
+                        <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                    </button>
+                </div>
+                
+                
+             
+                <div class="modal-body delete-body">
+                    <div class="delete-icon-container">
+                        <lightning-icon icon-name="utility:warning" size="large" class="warning-icon"></lightning-icon>
+                    </div>
+                    <div class="delete-message">
+                        <p class="delete-question">Are you sure you want to delete the selected task master record(s)?</p>
+                        <p class="delete-details" if:true={selectedTasksCount}>{selectedTasksCount} Task(s) will be permanently deleted.</p>
+                    </div>
+                </div>
+                
+                
+                <div class="modal-footer delete-footer">
+                    <button class="slds-button slds-button_neutral" 
+                            onclick={closeDeleteModal}
+                            disabled={isDeleting}>
+                        No
+                    </button>
+                    <button class="slds-button slds-button_brand delete-confirm-btn" 
+                            onclick={confirmDelete}
+                            disabled={isDeleting}>
+                        <template if:false={isDeleting}>
+                            Yes, Delete
+                        </template>
+                        <template if:true={isDeleting}>
+                            <lightning-spinner size="x-small"></lightning-spinner>
+                            Deleting...
+                        </template>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>
