@@ -59,7 +59,7 @@
 }
 
 .summary-card:hover {
-    border-color: #693C5E;
+    border-color: #c9a227;
 }
 
 .summary-card::before {
@@ -69,7 +69,7 @@
     left: 0;
     width: 3px;
     height: 100%;
-    background: #693C5E;
+    background: #c9a227;
 }
 
 .summary-card.total-card::before {
@@ -101,7 +101,7 @@
 }
 
 .summary-card.total-card .summary-card-value {
-    color: #693C5E;
+    color: #c9a227;
     font-weight: 700;
 }
 
@@ -120,7 +120,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 14px;
-    background: #693C5E;
+    background: #c9a227;
 }
 
 .table-header-left {
@@ -167,12 +167,12 @@
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb {
-    background: #693C5E;
+    background: #c9a227;
     border-radius: 3px;
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: #7d4a6e;
+    background: #c9a227;
 }
 
 /* ===== HERO PRICING TABLE ===== */
@@ -223,7 +223,7 @@
 
 .pricing-table tbody tr:hover {
     background: #f8f5f7;
-    box-shadow: inset 3px 0 0 #693C5E;
+    box-shadow: inset 3px 0 0 #c9a227;
 }
 
 .pricing-table td {

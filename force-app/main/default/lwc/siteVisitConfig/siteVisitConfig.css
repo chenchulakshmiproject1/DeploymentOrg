@@ -213,6 +213,7 @@
     background-color: #274369;
     color: white;
     border-radius: 12px;
+    margin-bottom: 2%;
 }
 .head-tab-div .slds-tabs_default__item.slds-is-active:after {
     background-color: white !important;

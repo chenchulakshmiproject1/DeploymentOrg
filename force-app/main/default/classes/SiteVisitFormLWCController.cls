@@ -765,7 +765,7 @@ public with sharing class SiteVisitFormLWCController {
                 // Replace placeholders in HTML
                 String body = template.HtmlValue;
                 body = body.replace('{!SalesPersonName}',salesUser.Name);
-                body = body.replace('{!VisitDate}', String.valueOf(visitRec.Actual_Visit_Date__c));
+                body = body.replace('{!VisitDate}', visitRec.Actual_Visit_Date__c!=null ?String.valueOf(visitRec.Actual_Visit_Date__c):'');
                 
                 body = body.replace('{!CreatedBy}', visitRec.CreatedBy.Name);
                 
@@ -839,6 +839,7 @@ public with sharing class SiteVisitFormLWCController {
             // update leadRecToUpdateAsClosedWon;
             return visitRecord.Id;
         }catch(Exception e){
+            System.debug('Exception::'+e.getMessage()+e.getLineNumber());
             return e.getMessage()+e.getLineNumber();
         }
     }

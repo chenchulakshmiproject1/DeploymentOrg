@@ -58,12 +58,21 @@
                             </div>
 
                             <!-- Preview -->
-                            <lightning-icon
+                            
+                            <template if:true={field.Is_Visible__c}>
+                                <lightning-icon
                                 icon-name="utility:preview"
                                 size="x-small"
                                 class="eye-icon">
-                            </lightning-icon>
-
+                                </lightning-icon>
+                            </template>
+                             <template if:false={field.Is_Visible__c}>
+                                <lightning-icon
+                                icon-name="utility:hide"
+                                size="x-small"
+                                class="eye-icon">
+                                </lightning-icon>
+                            </template>
                             <!-- Toggle -->
                             <lightning-input
                                 type="toggle"

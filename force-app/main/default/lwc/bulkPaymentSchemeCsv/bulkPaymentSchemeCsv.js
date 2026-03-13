@@ -4,8 +4,10 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import fetchDataOnLoad from '@salesforce/apex/BulkPaymentSchemeController.fetchDataOnLoad';
 import getPaymentSchemes from '@salesforce/apex/BulkPaymentSchemeController.getPaymentSchemes';
 import createPaymentSchemes from '@salesforce/apex/BulkPaymentSchemeController.createPaymentSchemes';
+import { NavigationMixin } from "lightning/navigation";
 
-export default class BulkPaymentSchemeCsv extends LightningElement {
+
+export default class BulkPaymentSchemeCsv extends NavigationMixin(LightningElement) {
 
     /* ---------------- TRACKED ---------------- */
 
@@ -28,6 +30,8 @@ export default class BulkPaymentSchemeCsv extends LightningElement {
     @track showDropdown = false;
     @track filteredRecords = [];
     @track curPageNumUnit = 1;
+    @track scheduleMasterMap = {};
+    @track installmentTypes = [];
 
     pageSize = 5;
 
@@ -44,7 +48,7 @@ export default class BulkPaymentSchemeCsv extends LightningElement {
     ]);
     expectedHeaders = [
         'Company','Project','Block','Payment Scheme Name','Token Amount',
-        'From Date','To Date'
+        'From Date','To Date','Schedule Installment','Type','% Installment','Display Order'
     ];
 
     /* ---------------- GETTERS ---------------- */
@@ -103,6 +107,8 @@ export default class BulkPaymentSchemeCsv extends LightningElement {
     loadLookupData() {
         fetchDataOnLoad()
             .then(res => {
+                this.scheduleMasterMap = res.scheduleMasterMap || {};
+                this.installmentTypes = res.installmentTypes || [];
                 this.companyMap = res.companyMap || {};
                 this.projectMap = res.projectMap || {};
                 this.blockMap = res.blockMap || {};
@@ -148,225 +154,217 @@ export default class BulkPaymentSchemeCsv extends LightningElement {
     }
 
     /* ---------------- FILE UPLOAD ---------------- */
+    handleFileUpload(event) {
 
- handleFileUpload(event) {
+        this.resetState();
 
-    this.resetState();
+        const file = event.target.files[0];
+        if (!file) return;
 
-    const file = event.target.files[0];
-    if (!file) return;
+        const reader = new FileReader();
 
-    const reader = new FileReader();
+        reader.onload = () => {
 
-    reader.onload = () => {
+            const text = reader.result;
 
-        const text = reader.result;
-        const lines = text.split(/\r?\n/).filter(l => l.trim());
-        if (!lines.length) return;
+            const rows = text.split(/\r?\n/).filter(r => r.trim());
 
-        /* -------- CSV PARSER -------- */
-        const parseCsvLine = (line) => {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
+            if (!rows.length) return;
 
-            for (let char of line) {
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    result.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
+            const headers = rows[0].split(',').map(h => h.trim());
+
+            if (JSON.stringify(headers) !== JSON.stringify(this.expectedHeaders)) {
+                this.headerErrorMessage =
+                    'CSV headers are incorrect. Please use downloaded template.';
+                this.showHeaderErrors = true;
+                return;
             }
-            result.push(current.trim());
-            return result;
-        };
 
-        /* -------- HEADER VALIDATION -------- */
+            this.headers = ['S.No', ...headers, 'Errors'];
 
-        const dataHeaders = parseCsvLine(lines[0])
-            .map(h => h.replace(/^\uFEFF/, '').trim());
+            const errorRows = [];
+            const schemeRunningTotal = {};
+            const schemeOrders = {};
+            const schemeParents = {};
 
-        const missing = this.expectedHeaders.filter(h => !dataHeaders.includes(h));
-        const invalid = dataHeaders.filter(h => !this.expectedHeaders.includes(h));
+            rows.slice(1).forEach((line, index) => {
 
-        if (
-            missing.length > 0 ||
-            invalid.length > 0 ||
-            JSON.stringify(dataHeaders) !== JSON.stringify(this.expectedHeaders)
-        ) {
-            this.headerErrorMessage =
-                'CSV headers are incorrect. Please use downloaded template.';
-            this.showHeaderErrors = true;
-        }
+                const values = line.split(',').map(v => v.trim());
+                const cells = [];
 
-        this.headers = ['S.No', ...dataHeaders];
+                const errors = [];
 
-        /* -------- DATE VALIDATOR -------- */
-        const isValidDate = (dateStr) => {
-            if (!dateStr) return false;
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return false;
+                const [
+                    companyRaw, projectRaw, blockRaw, schemeRaw,
+                    tokenRaw, fromDateRaw, toDateRaw,
+                    scheduleName, type, percentRaw, orderRaw
+                ] = values;
 
-            const day = Number(parts[0]);
-            const month = Number(parts[1]);
-            const year = Number(parts[2]);
-
-            if (
-                isNaN(day) || isNaN(month) || isNaN(year) ||
-                day < 1 || day > 31 ||
-                month < 1 || month > 12 ||
-                year < 1900
-            ) return false;
-
-            return true;
-        };
-
-        /* -------- ROW PROCESSING -------- */
-
-        const rows = [];
-
-        lines.slice(1).forEach((line, index) => {
-
-            const cols = parseCsvLine(line);
-            while (cols.length < dataHeaders.length) cols.push('');
-
-            const cells = [];
-            const errors = [];
-            const rowNo = index + 1;
-
-            /* Extract values properly */
-            const companyName = cols[dataHeaders.indexOf('Company')];
-            const projectName = cols[dataHeaders.indexOf('Project')];
-            const blockName = cols[dataHeaders.indexOf('Block')];
-            const schemeName = cols[dataHeaders.indexOf('Payment Scheme Name')];
-            const tokenAmount = cols[dataHeaders.indexOf('Token Amount')];
-            const fromDate = cols[dataHeaders.indexOf('From Date')];
-            const toDate = cols[dataHeaders.indexOf('To Date')];
-
-            const companyId = this.companyMap[companyName?.toLowerCase()];
-            const projectId = this.projectMap[projectName?.toLowerCase()];
-            const blockId = this.blockMap[blockName?.toLowerCase()];
-
-            /* Serial Number */
-            cells.push({
-                id: `sno_${index}`,
-                value: rowNo,
-                className: ''
-            });
-
-            dataHeaders.forEach((header, colIndex) => {
-
-                const value = cols[colIndex] || '';
-                let css = '';
-
-                /* Required Validation */
-                if (!value || value.trim() === '') {
-                    errors.push(`${header} is required`);
-                    css = 'error-cell';
+                if (schemeRaw) {
+                    schemeParents[schemeRaw] = {
+                        company: companyRaw,
+                        project: projectRaw,
+                        block: blockRaw,
+                        token: tokenRaw,
+                        fromDate: fromDateRaw,
+                        toDate: toDateRaw
+                    };
                 }
 
-                /* Lookup Validations */
-                if (header === 'Company' && value && !companyId) {
-                    errors.push('Invalid Company');
-                    css = 'error-cell';
+                const schemeName = schemeRaw || Object.keys(schemeParents).slice(-1)[0];
+                const parent = schemeParents[schemeName];
+
+                if (!parent) {
+                    errors.push('Parent details missing');
                 }
 
-                if (header === 'Project' && value && !projectId) {
-                    errors.push('Invalid Project');
-                    css = 'error-cell';
-                }
+                const company = parent?.company;
+                const project = parent?.project;
+                const block = parent?.block;
+                const token = parent?.token;
+                const fromDate = parent?.fromDate;
+                const toDate = parent?.toDate;
 
-                if (header === 'Block' && value && !blockId) {
-                    errors.push('Invalid Block');
-                    css = 'error-cell';
-                }
+                const companyId = this.companyMap[company?.toLowerCase()];
+                const projectId = this.projectMap[project?.toLowerCase()];
+                const blockId = this.blockMap[block?.toLowerCase()];
+                const scheduleId = this.scheduleMasterMap[scheduleName?.toLowerCase()];
 
-                /* Token Amount Validation */
-                if (header === 'Token Amount' && value) {
-                    if (isNaN(value) || Number(value) < 0) {
-                        errors.push('Token Amount must be a positive number');
-                        css = 'error-cell';
+                if (!companyId) errors.push('Invalid Company');
+                if (!projectId) errors.push('Invalid Project');
+                if (!blockId) errors.push('Invalid Block');
+                if (!scheduleId) errors.push('Invalid Schedule Installment');
+                if (!this.installmentTypes.includes(type)) errors.push('Invalid Type');
+
+                let percent = null;
+
+                if (!percentRaw) {
+                    errors.push('Installment % required');
+                } else {
+                    percent = Number(percentRaw.replace('%', ''));
+                    if (isNaN(percent)) {
+                        errors.push('Installment % must be number');
                     }
                 }
 
-                /* Date Validation */
-                if (header === 'From Date' && value && !isValidDate(value)) {
-                    errors.push('From Date must be in DD-MM-YYYY format');
-                    css = 'error-cell';
+                const order = Number(orderRaw);
+
+                if (isNaN(order)) {
+                    errors.push('Display Order must be number');
                 }
 
-                if (header === 'To Date' && value && !isValidDate(value)) {
-                    errors.push('To Date must be in DD-MM-YYYY format');
-                    css = 'error-cell';
+                if (!this.payload[schemeName]) {
+
+                    this.payload[schemeName] = {
+                        name: schemeName,
+                        companyId,
+                        projectId,
+                        blockId,
+                        tokenAmount: Number(token),
+                        fromDate,
+                        toDate,
+                        installments: []
+                    };
+
+                    schemeRunningTotal[schemeName] = 0;
+                    schemeOrders[schemeName] = new Set();
                 }
 
+                if (percent !== null) {
+
+                    schemeRunningTotal[schemeName] += percent;
+
+                    if (schemeRunningTotal[schemeName] > 100) {
+                        errors.push(
+                            `Installment % exceeds 100 (${schemeRunningTotal[schemeName]}%)`
+                        );
+                    }
+                }
+
+                const expectedOrder = schemeOrders[schemeName].size + 1;
+
+                if (!isNaN(order) && order !== expectedOrder) {
+                    errors.push('Display Order must start from 1 and be sequential');
+                }
+
+                if (schemeOrders[schemeName].has(order)) {
+                    errors.push('Duplicate Display Order');
+                } else if (!isNaN(order)) {
+                    schemeOrders[schemeName].add(order);
+                }
+
+                if (errors.length === 0) {
+
+                    this.payload[schemeName].installments.push({
+                        scheduleMasterId: scheduleId,
+                        type,
+                        percentage: percent,
+                        displayOrder: order
+                    });
+
+                } else {
+
+                    this.hasRowErrors = true;
+                }
+
+                const effectiveValues = [
+                    company, project, block, schemeName,
+                    token, fromDate, toDate,
+                    scheduleName, type, percentRaw, orderRaw
+                ];
+
                 cells.push({
-                    id: `row_${index}_${colIndex}`,
-                    value: value,
-                    className: css
+                    id: `sno_${index}`,
+                    value: index + 1,
+                    className: ''
                 });
+
+                effectiveValues.forEach((v, i) => {
+
+                    cells.push({
+                        id: `row_${index}_${i}`,
+                        value: v ?? '',
+                        className: errors.length ? 'error-cell' : ''
+                    });
+                });
+
+                cells.push({
+                    id: `err_${index}`,
+                    value: errors.join('; '),
+                    className: errors.length ? 'error-cell' : ''
+                });
+
+                if (errors.length) errorRows.push(index + 1);
+
+                this.previewData.push({
+                    id: `row_${index}`,
+                    cells
+                });
+
             });
 
-            /* If Errors */
-            if (errors.length > 0) {
+            this.errorRowNumbers = errorRows.join(', ');
 
-                this.hasRowErrors = true;
+            this.paginatedRowsToDisplay =
+                this.previewData.slice(0, this.pageSize);
 
-                cells.push({
-                    id: `error_${index}`,
-                    value: errors.join(' | '),
-                    className: 'error-cell'
-                });
-
-            } else {
-
-                /* Push Valid Record */
-                this.recordsToInsert.push({
-                    name: schemeName,
-                    companyId: companyId,
-                    projectId: projectId,
-                    blockId: blockId,
-                    tokenAmount: Number(tokenAmount),
-                    fromDate: fromDate,
-                    toDate: toDate
-                });
-            }
-
-            rows.push({
-                id: `row_${index}`,
-                cells
+            setTimeout(() => {
+                const pagination =
+                    this.template.querySelector('.previewPagination');
+                if (pagination) {
+                    pagination.setPagination(this.pageSize);
+                }
             });
-        });
 
-        /* Add Error Header */
-        if (this.hasRowErrors) {
-            this.headers = [...this.headers, 'Error'];
-        }
+            this.canSave =
+                !this.showHeaderErrors &&
+                !this.hasRowErrors &&
+                this.previewData.length > 0;
 
-        this.previewData = rows;
+        };
 
-        this.paginatedRowsToDisplay =
-            this.previewData.slice(0, this.pageSize);
-
-        setTimeout(() => {
-            const pagination =
-                this.template.querySelector('.previewPagination');
-            if (pagination) {
-                pagination.setPagination(this.pageSize);
-            }
-        });
-
-        this.canSave =
-            !this.showHeaderErrors &&
-            !this.hasRowErrors &&
-            this.previewData.length > 0;
-    };
-
-    reader.readAsText(file);
-}
+        reader.readAsText(file);
+    }
 
     /* ---------------- RESET ---------------- */
 
@@ -385,11 +383,12 @@ export default class BulkPaymentSchemeCsv extends LightningElement {
     /* ---------------- SAVE ---------------- */
 
     handleSave() {
-        createPaymentSchemes({ recordsJson: JSON.stringify(this.recordsToInsert) })
+        createPaymentSchemes({ recordsJson: JSON.stringify(this.payload) })
             .then(() => {
                 this.toast('Success', 'Cost Sheet created successfully', 'success');
                 this.previewData = [];
                 this.recordsToInsert = [];
+                this.resetState();
             })
             .catch(e => {
                 this.toast(
@@ -443,6 +442,28 @@ export default class BulkPaymentSchemeCsv extends LightningElement {
         setTimeout(() => {
             const pagination = this.template.querySelector('.unitPagination');
             if (pagination) pagination.setPagination(this.pageSize);
+        });
+    }
+    handleRowClick(event) {
+        debugger
+        const recordId = event.currentTarget.dataset.id;
+        window.open('/' + recordId, '_blank');
+        // window.location.href = '/' + recordId;
+        // this[NavigationMixin.Navigate]({
+        //     type: 'standard__recordPage',
+        //     attributes: {
+        //         recordId: recordId,
+        //         actionName: 'view'
+        //     }
+        // });
+    }
+    createIndividualRec(){
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Payment_Scheme__c', 
+                actionName: 'new'
+            }
         });
     }
 }

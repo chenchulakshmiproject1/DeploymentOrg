@@ -4,8 +4,9 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import fetchDataOnLoad from '@salesforce/apex/CostSheetCsvController.fetchDataOnLoad';
 import getCostSheetTemplates from '@salesforce/apex/CostSheetCsvController.getCostSheetTemplates';
 import uploadCostSheet from '@salesforce/apex/CostSheetCsvController.uploadCostSheet';
+import { NavigationMixin } from "lightning/navigation";
 
-export default class CostSheetCsvUpload extends LightningElement {
+export default class CostSheetCsvUpload extends NavigationMixin(LightningElement) {
     @track headers = [];
     @track previewData = [];
     @track columns = [];
@@ -32,7 +33,9 @@ export default class CostSheetCsvUpload extends LightningElement {
     'Company',
     'Project',
     'Template Code',
-    'Active'
+    'Active','Unit Code',
+        'Pricing Element Master','Unit','PE Group','PE Type',
+        'Pricing Type','Sequence','Quantity','Rate','Tax Type','Tax Name','App %',
     // ,
     // 'Total Amount Inclusive of Tax',
     // 'Amount',
@@ -40,8 +43,14 @@ export default class CostSheetCsvUpload extends LightningElement {
 ]);
 
     expectedHeaders = [
-        'Template Name', 'Company','Project','Template Code','Active'
-        // ,'Total Amount Inclusive of Tax','Amount','Tax Amount'
+        'Company','Project','Template Code','Template Name','Active','Unit Code',
+        'Pricing Element Master','Unit',
+        // 'Pricing Element Allocation',
+        'PE Group','PE Type',
+        'Pricing Type','Sequence','Quantity','Rate',
+        // 'Amount','Tax Amount',
+        'Tax Type','Tax Name','App %',
+        // 'Tax %','Amount'
     ];
 
     get showSubmit() {
@@ -197,6 +206,7 @@ export default class CostSheetCsvUpload extends LightningElement {
 
             const rows = [];
             const fileCodes = new Set();
+            const payloadMap = new Map();
 
             lines.slice(1).forEach((line, index) => {
 
@@ -269,7 +279,7 @@ export default class CostSheetCsvUpload extends LightningElement {
                             css = 'error-cell';
                         }
                     }
-
+debugger;
                     cells.push({
                         id: `row_${index}_${colIndex}`,
                         value: value,
@@ -290,20 +300,64 @@ export default class CostSheetCsvUpload extends LightningElement {
                     });
 
                 }else {
-                  
-                    const record = {
-                    template: {
-                        companyId: this.companyMap[cols[1]?.toLowerCase()],
-                        projectId: this.projectMap[cols[2]?.toLowerCase()],
-                        templateCode: cols[3],
-                        templateName: cols[0],
-                        active: cols[4]?.toLowerCase() === 'true'
-                    },
-                    unitCodes: [],
-                    pricingRows: []
-                };
+                    const company = cols[0];
+                    const project = cols[1];
+                    const templateCode = cols[2];
+                    const templateName = cols[3];
+                    const active = cols[4];
+                    const unitCode = cols[5];
 
-                this.recordsToInsert.push(record);
+                    // const pricingElementMaster = cols[6];
+                    const unit = cols[7];
+                    const pricingElementAlloc = cols[6];
+                    const peGroup = cols[8];
+                    const peType = cols[9];
+                    const pricingType = cols[10];
+                    const sequence = cols[11];
+                    const quantity = cols[12];
+                    const rate = cols[13];
+                    const taxType = cols[14];
+                    const taxName = cols[15];
+                    const appPercent = cols[16];
+
+                    if (!payloadMap.has(templateCode)) {
+
+                        payloadMap.set(templateCode, {
+                            template: {
+                                companyId: this.companyMap[company?.toLowerCase()],
+                                projectId: this.projectMap[project?.toLowerCase()],
+                                templateCode: templateCode,
+                                templateName: templateName,
+                                active: active?.toLowerCase() === 'true'
+                            },
+                            unitCodes: [],
+                            pricingRows: []
+                        });
+
+                    }
+
+                    const payload = payloadMap.get(templateCode);
+
+                    if (unitCode) {
+                        payload.unitCodes.push(unitCode);
+                    }
+
+                    payload.pricingRows.push({
+                        // pricingElementMaster,
+                        pricingElementAlloc,
+                        unit,
+                        peGroup,
+                        peType,
+                        type: pricingType,
+                        sequence: Number(sequence),
+                        quantity: Number(quantity),
+                        rate: Number(rate),
+                        taxType,
+                        taxName,
+                        appPercent: Number(appPercent)
+                    });
+
+                    // this.recordsToInsert.push(record);
                 }
 
                 rows.push({
@@ -311,6 +365,7 @@ export default class CostSheetCsvUpload extends LightningElement {
                     cells: cells
                 });
             });
+                this.recordsToInsert = Array.from(payloadMap.values());
 
             /* Add Error Column if Needed */
             if (this.hasRowErrors) {
@@ -357,6 +412,7 @@ export default class CostSheetCsvUpload extends LightningElement {
                 this.toast('Success', 'Cost Sheet created successfully', 'success');
                 this.previewData = [];
                 this.recordsToInsert = [];
+                this.resetState();
             })
             .catch(e => {
                 this.toast(
@@ -416,4 +472,18 @@ filterRecords() {
         if (pagination) pagination.setPagination(this.pageSize);
     });
 }
+    handleRowClick(event) {
+        debugger
+        const recordId = event.currentTarget.dataset.id;
+        window.open('/' + recordId, '_blank');
+    }
+    createIndividualRec(){
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Cost_Sheet_Template__c', 
+                actionName: 'new'
+            }
+        });
+    }
 }

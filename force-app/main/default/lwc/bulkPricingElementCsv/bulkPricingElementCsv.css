@@ -266,3 +266,13 @@ td, th {
     font-size: 16px;
     color: #6b7280;
 }
+.link {
+    color: #2f558a;
+    font-weight: 700;
+    padding-bottom: 5px;
+}
+.link:hover {
+    color: #22416b;
+    text-decoration: underline;
+    cursor: pointer;
+}

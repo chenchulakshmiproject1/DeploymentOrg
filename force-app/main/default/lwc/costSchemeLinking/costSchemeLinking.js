@@ -5,8 +5,9 @@ import getCostSchemeLinkings from '@salesforce/apex/CostSchemeBulkUploadControll
 import getPaymentSchemes from '@salesforce/apex/CostSchemeBulkUploadController.getPaymentSchemes';
 import getCostSheetTemplates from '@salesforce/apex/CostSchemeBulkUploadController.getCostSheetTemplates';
 import getProjects from '@salesforce/apex/CostSchemeBulkUploadController.getProjects';
+import { NavigationMixin } from "lightning/navigation";
 
-export default class CostSchemeLinking extends LightningElement {
+export default class CostSchemeLinking extends NavigationMixin(LightningElement) {
 
     expectedHeaders = [
         'Payment Scheme',
@@ -375,4 +376,18 @@ filterRecords() {
         if (pagination) pagination.setPagination(this.pageSize);
     });
 }
+    handleRowClick(event) {
+        debugger
+        const recordId = event.currentTarget.dataset.id;
+        window.open('/' + recordId, '_blank');
+    }
+    createIndividualRec(){
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'Cost_Scheme_Linking__c', 
+                actionName: 'new'
+            }
+        });
+    }
 }

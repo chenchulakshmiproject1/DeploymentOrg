@@ -48,7 +48,7 @@ export default class SiteVisitConfig extends LightningElement {
     }
 
     handleToggle(event){
-
+        debugger;
         const recordId = event.target.dataset.id;
         const isVisible = event.target.checked;
 
@@ -56,7 +56,22 @@ export default class SiteVisitConfig extends LightningElement {
             recordId : recordId,
             isVisible : isVisible
         });
+       const data = this.showVisitFields ? this.sectionsOfVisit : this.sectionsOfLead;
 
+        const cur = data.map(section => ({
+            ...section,
+            fields: section.fields.map(field =>
+                field.Id === recordId
+                    ? { ...field, Is_Visible__c: isVisible }
+                    : field
+            )
+        }));
+
+        if (this.showVisitFields) {
+            this.sectionsOfVisit = cur;
+        } else {
+            this.sectionsOfLead = cur;
+        }
     }
     handleActivetab(event){
         debugger;

@@ -101,209 +101,452 @@ public with sharing class CostSheetCsvController {
 
     @AuraEnabled
     public static void uploadCostSheet(String payloadJson) {
-        if (String.isBlank(payloadJson)) {
-            throw new AuraHandledException('Payload is empty');
-        }
 
-        List<PayloadWrapper> payloads =
-    (List<PayloadWrapper>) JSON.deserialize(payloadJson, List<PayloadWrapper>.class);
+        try{
 
+            if(String.isBlank(payloadJson)){
+                throw new AuraHandledException('Payload is empty');
+            }
 
-        for (PayloadWrapper payload : payloads) {
+            List<PayloadWrapper> payloads =
+            (List<PayloadWrapper>)JSON.deserialize(payloadJson,List<PayloadWrapper>.class);
 
-    validateTemplate(payload.template);
+            if(payloads == null || payloads.isEmpty()){
+                throw new AuraHandledException('No data received');
+            }
 
-    Id templateId = createTemplate(payload.template);
+            Set<String> templateCodes = new Set<String>();
+            Set<String> unitCodes = new Set<String>();
+            Set<String> pricingElements = new Set<String>();
+            Set<String> taxNames = new Set<String>();
 
-    processUnits(templateId, payload.unitCodes);
+            for(PayloadWrapper payload : payloads){
 
-    Map<Integer, Id> pricingAssocMap =
-        processPricingAssociations(templateId, payload.pricingRows);
+                if(payload.template != null){
+                    templateCodes.add(payload.template.templateCode);
+                }
 
-    processTaxes(pricingAssocMap, payload.pricingRows);
-  }
+                if(payload.unitCodes != null){
+                    unitCodes.addAll(payload.unitCodes);
+                }
 
-    }
-            private static void validateTemplate(TemplateWrapper t) {
-            Integer cnt = [
-                SELECT COUNT()
+                if(payload.pricingRows != null){
+                    for(PricingRowWrapper r : payload.pricingRows){
+
+                        if(String.isNotBlank(r.pricingElementAlloc)){
+                            pricingElements.add(r.pricingElementAlloc);
+                        }
+
+                        if(String.isNotBlank(r.taxName)){
+                            taxNames.add(r.taxName);
+                        }
+                    }
+                }
+            }
+
+            Map<String,Cost_Sheet_Template__c> existingTemplates =
+            new Map<String,Cost_Sheet_Template__c>();
+
+            for(Cost_Sheet_Template__c c :[
+                SELECT Id,Template_Code__c
                 FROM Cost_Sheet_Template__c
-                WHERE Template_Code__c = :t.templateCode
-            ];
+                WHERE Template_Code__c IN :templateCodes
+            ]){
+                existingTemplates.put(c.Template_Code__c,c);
+            }
 
-            if (cnt > 0) {
-                throw new AuraHandledException(
-                    'Template Code "' + t.templateCode + '" already exists. Template Code must be unique.'
+            Map<String,Unit__c> unitMap = new Map<String,Unit__c>();
+
+            for(Unit__c u :[
+                SELECT Id,Unit_Code__c
+                FROM Unit__c
+                WHERE Unit_Code__c IN :unitCodes
+                AND Status__c = 'For Sale'
+            ]){
+                unitMap.put(u.Unit_Code__c,u);
+            }
+
+            Map<String,Pricing_Element_Master__c> pricingMap =
+            new Map<String,Pricing_Element_Master__c>();
+
+            for(Pricing_Element_Master__c pe :[
+                SELECT Id,Name
+                FROM Pricing_Element_Master__c
+                WHERE Parking_Type__c = null
+            ]){
+                pricingMap.put(pe.Name,pe);
+            }
+
+            Map<String,Tax_Master__c> taxMap =
+            new Map<String,Tax_Master__c>();
+
+            for(Tax_Master__c t :[
+                SELECT Id,Name,Tax__c,Tax_Type__c
+                FROM Tax_Master__c
+                WHERE Active__c = true
+            ]){
+                taxMap.put(t.Name,t);
+            }
+
+            List<Cost_Sheet_Template__c> templatesToInsert =
+            new List<Cost_Sheet_Template__c>();
+
+            for(PayloadWrapper payload : payloads){
+
+                TemplateWrapper t = payload.template;
+
+                if(existingTemplates.containsKey(t.templateCode)){
+                    throw new AuraHandledException(
+                    'Template Code "'+t.templateCode+'" already exists.');
+                }
+
+                templatesToInsert.add(new Cost_Sheet_Template__c(
+                    Company__c = t.companyId,
+                    Project__c = t.projectId,
+                    Template_Code__c = t.templateCode,
+                    Name = t.templateName,
+                    Active__c = t.active
+                ));
+            }
+
+            insert templatesToInsert;
+
+            Map<String,Id> templateIdMap = new Map<String,Id>();
+
+            for(Cost_Sheet_Template__c t : templatesToInsert){
+                templateIdMap.put(t.Template_Code__c,t.Id);
+            }
+
+            List<Cost_Unit_Linking__c> unitLinks =
+            new List<Cost_Unit_Linking__c>();
+
+            List<Cost_Pricing_Association__c> pricingRecords =
+            new List<Cost_Pricing_Association__c>();
+
+            List<PricingRowWrapper> allPricingRows =
+            new List<PricingRowWrapper>();
+
+            for(PayloadWrapper payload : payloads){
+
+                Id templateId =
+                templateIdMap.get(payload.template.templateCode);
+
+                if(payload.unitCodes != null){
+
+                    Set<String> uniqueUnits =
+                    new Set<String>(payload.unitCodes);
+
+                    for(String code : uniqueUnits){
+
+                        if(!unitMap.containsKey(code)){
+                            throw new AuraHandledException(
+                            'Invalid/Unavailable Unit Codes: '+code);
+                        }
+
+                        unitLinks.add(new Cost_Unit_Linking__c(
+                            Cost_Sheet_Template__c = templateId,
+                            Unit__c = unitMap.get(code).Id
+                        ));
+                    }
+                }
+
+                if(payload.pricingRows != null){
+
+                    for(PricingRowWrapper r : payload.pricingRows){
+
+                        if(String.isBlank(r.pricingElementAlloc) ||
+                        !pricingMap.containsKey(r.pricingElementAlloc)){
+                            throw new AuraHandledException(
+                            'Invalid Pricing Element Allocation : '+r.pricingElementAlloc);
+                        }
+
+                        Decimal amount = r.quantity * r.rate;
+
+                        pricingRecords.add(new Cost_Pricing_Association__c(
+                            Cost_Sheet_Template__c = templateId,
+                            Pricing_Element_Master__c =
+                            pricingMap.get(r.pricingElementAlloc).Id,
+                            Unit__c = r.unit,
+                            PE_Type__c = r.peType,
+                            Type__c = r.type,
+                            Sequence__c = r.sequence,
+                            Quantity__c = r.quantity,
+                            Rate__c = r.rate,
+                            Amount__c = amount,
+                            Tax_Amount__c = 0
+                        ));
+
+                        allPricingRows.add(r);
+                    }
+                }
+            }
+
+            if(!unitLinks.isEmpty()){
+                insert unitLinks;
+            }
+
+            insert pricingRecords;
+
+            Map<Integer,Id> pricingAssocMap =
+            new Map<Integer,Id>();
+
+            for(Integer i=0;i<pricingRecords.size();i++){
+                pricingAssocMap.put(i,pricingRecords[i].Id);
+            }
+
+            List<Cost_Sheet_Tax_Linking__c> taxLinks =
+            new List<Cost_Sheet_Tax_Linking__c>();
+
+            Map<Id,Decimal> pricingTaxTotals =
+            new Map<Id,Decimal>();
+
+            for(Integer i=0;i<allPricingRows.size();i++){
+
+                PricingRowWrapper r = allPricingRows[i];
+
+                if(String.isBlank(r.taxName)){
+                    continue;
+                }
+
+                Tax_Master__c tm = taxMap.get(r.taxName);
+
+                if(tm == null){
+                    throw new AuraHandledException(
+                    'Invalid Tax: '+r.taxName);
+                }
+
+                if(tm.Tax_Type__c != r.taxType){
+                    throw new AuraHandledException(
+                    'Tax "'+r.taxName+'" is of type "'+tm.Tax_Type__c+'"');
+                }
+
+                Decimal appliedPercent =
+                (r.appPercent != null && r.appPercent > 0)
+                ? r.appPercent
+                : tm.Tax__c;
+
+                Decimal baseAmount =
+                r.quantity * r.rate;
+
+                Decimal taxAmount =
+                baseAmount * (appliedPercent/100);
+
+                Id pricingAssocId =
+                pricingAssocMap.get(i);
+
+                taxLinks.add(new Cost_Sheet_Tax_Linking__c(
+                    Cost_Pricing_Association__c = pricingAssocId,
+                    Tax_Master__c = tm.Id,
+                    App__c = appliedPercent,
+                    Amount__c = taxAmount
+                ));
+
+                pricingTaxTotals.put(
+                    pricingAssocId,
+                    (pricingTaxTotals.containsKey(pricingAssocId)
+                    ? pricingTaxTotals.get(pricingAssocId)
+                    : 0) + taxAmount
                 );
             }
-        }       
 
-    private static Id createTemplate(TemplateWrapper t) {
-        Cost_Sheet_Template__c cst = new Cost_Sheet_Template__c(
-            Company__c       = t.companyId,
-            Project__c       = t.projectId,
-            Template_Code__c = t.templateCode,
-            Name             = t.templateName,
-            Active__c        = t.active
-        );
-
-        insert cst;
-        return cst.Id;
-    }
-
-    private static void processUnits(Id templateId, List<String> unitCodes) {
-        Set<String> uniqueUnitCodes = new Set<String>(unitCodes);
-
-
-        Map<String, Unit__c> unitMap = new Map<String, Unit__c>();
-        for (Unit__c u : [
-            SELECT Id, Unit_Code__c
-            FROM Unit__c
-            WHERE Unit_Code__c IN :uniqueUnitCodes
-              AND Status__c = 'Available'
-        ]) {
-            unitMap.put(u.Unit_Code__c, u);
-        }
-
-        if (unitMap.size() != uniqueUnitCodes.size()) {
-            Set<String> missing = new Set<String>(uniqueUnitCodes);
-            missing.removeAll(unitMap.keySet());
-            throw new AuraHandledException('Invalid/Unavailable Unit Codes: ' + String.join(new List<String>(missing), ', '));
-        }
-
-        List<Cost_Unit_Linking__c> links = new List<Cost_Unit_Linking__c>();
-        for (Unit__c u : unitMap.values()) {
-            links.add(new Cost_Unit_Linking__c(
-                Cost_Sheet_Template__c = templateId,
-                Unit__c = u.Id
-            ));
-        }
-
-        insert links;
-    }
-
-    private static Map<Integer, Id> processPricingAssociations(
-        Id templateId,
-        List<PricingRowWrapper> rows
-    ) {
-
-        Map<String, Pricing_Element_Master__c> masterMap = new Map<String, Pricing_Element_Master__c>();
-        for (Pricing_Element_Master__c pe : [
-            SELECT Id, Name
-            FROM Pricing_Element_Master__c
-            WHERE Parking_Type__c = null
-        ]) {
-            masterMap.put(pe.Name, pe);
-        }
-
-        List<Cost_Pricing_Association__c> records = new List<Cost_Pricing_Association__c>();
-        Map<Integer, Id> result = new Map<Integer, Id>();
-
-        for (Integer i = 0; i < rows.size(); i++) {
-            PricingRowWrapper r = rows[i];
-            
-            if (String.isBlank(r.pricingElementAlloc) ||
-            !masterMap.containsKey(r.pricingElementAlloc)) {
-                throw new AuraHandledException('Invalid Pricing Element: ' + r.pricingElementAlloc);
+            if(!taxLinks.isEmpty()){
+                insert taxLinks;
             }
 
-            Decimal amount = r.quantity * r.rate;
+            List<Cost_Pricing_Association__c> updates =
+            new List<Cost_Pricing_Association__c>();
 
-            Cost_Pricing_Association__c rec = new Cost_Pricing_Association__c(
-                Cost_Sheet_Template__c    = templateId,
-                Pricing_Element_Master__c = masterMap.get(r.pricingElementAlloc).Id,
-                Unit__c                   = r.unit,
+            for(Id pid : pricingTaxTotals.keySet()){
+
+                updates.add(new Cost_Pricing_Association__c(
+                    Id = pid,
+                    Tax_Amount__c = pricingTaxTotals.get(pid)
+                ));
+            }
+
+            if(!updates.isEmpty()){
+                update updates;
+            }
+
+        }catch(Exception e){
+
+            throw new AuraHandledException(e.getMessage());
+
+        }
+    }
+    // private static void validateTemplate(TemplateWrapper t) {
+    //     Integer cnt = [
+    //         SELECT COUNT()
+    //         FROM Cost_Sheet_Template__c
+    //         WHERE Template_Code__c = :t.templateCode
+    //     ];
+
+    //     if (cnt > 0) {
+    //         throw new AuraHandledException(
+    //             'Template Code "' + t.templateCode + '" already exists. Template Code must be unique.'
+    //         );
+    //     }
+    // }       
     
-                PE_Type__c                = r.peType,
-                Type__c                   = r.type,
-                Sequence__c               = r.sequence,
-                Quantity__c               = r.quantity,
-                Rate__c                   = r.rate,
-                Amount__c                 = amount,
-                Tax_Amount__c             = 0  
-            );
+    // private static Id createTemplate(TemplateWrapper t) {
+    //     Cost_Sheet_Template__c cst = new Cost_Sheet_Template__c(
+    //         Company__c       = t.companyId,
+    //         Project__c       = t.projectId,
+    //         Template_Code__c = t.templateCode,
+    //         Name             = t.templateName,
+    //         Active__c        = t.active
+    //     );
 
-            records.add(rec);
-        }
+    //     insert cst;
+    //     return cst.Id;
+    // }
 
-        insert records;
-
-        for (Integer i = 0; i < records.size(); i++) {
-            result.put(i, records[i].Id);
-        }
-
-        return result;
-    }
-
-   private static void processTaxes(
-    Map<Integer, Id> pricingAssocMap,
-    List<PricingRowWrapper> rows
-) {
-    Map<String, Tax_Master__c> taxMap = new Map<String, Tax_Master__c>();
-    for (Tax_Master__c t : [
-        SELECT Id, Name, Tax__c, Tax_Type__c
-        FROM Tax_Master__c
-        WHERE Active__c = true
-    ]) {
-        taxMap.put(t.Name, t);
-    }
-
-    List<Cost_Sheet_Tax_Linking__c> taxLinks = new List<Cost_Sheet_Tax_Linking__c>();
-    Map<Id, Decimal> pricingTaxSums = new Map<Id, Decimal>();
-
-    for (Integer i = 0; i < rows.size(); i++) {
-        PricingRowWrapper r = rows[i];
-        if (String.isBlank(r.taxName)) continue;
-
-        Id pricingAssocId = pricingAssocMap.get(i);
-        Tax_Master__c tm = taxMap.get(r.taxName);
-
-        if (tm == null) {
-            throw new AuraHandledException('Invalid Tax: ' + r.taxName);
-        }
-
-        if (tm.Tax_Type__c != r.taxType) {
-            throw new AuraHandledException(
-                'Tax "' + r.taxName + '" is of type "' + tm.Tax_Type__c + '"'
-            );
-        }
-
-        Decimal appliedPercent =
-            (r.appPercent != null && r.appPercent > 0)
-            ? r.appPercent
-            : tm.Tax__c;
-
-        Decimal baseAmount = r.quantity * r.rate;
-        Decimal taxAmount = baseAmount * (appliedPercent / 100);
+    // private static void processUnits(Id templateId, List<String> unitCodes) {
+    //     Set<String> uniqueUnitCodes = new Set<String>(unitCodes);
 
 
-        taxLinks.add(new Cost_Sheet_Tax_Linking__c(
-            Cost_Pricing_Association__c = pricingAssocId,
-            Tax_Master__c = tm.Id,
-            App__c = appliedPercent,
-            Amount__c = taxAmount
-        ));
+    //     Map<String, Unit__c> unitMap = new Map<String, Unit__c>();
+    //     for (Unit__c u : [
+    //         SELECT Id, Unit_Code__c
+    //         FROM Unit__c
+    //         WHERE Unit_Code__c IN :uniqueUnitCodes
+    //           AND Status__c = 'For Sale'
+    //     ]) {
+    //         unitMap.put(u.Unit_Code__c, u);
+    //     }
 
-        pricingTaxSums.put(
-            pricingAssocId,
-            (pricingTaxSums.containsKey(pricingAssocId)
-                ? pricingTaxSums.get(pricingAssocId)
-                : 0) + taxAmount
-        );
-    }
+    //     if (unitMap.size() != uniqueUnitCodes.size()) {
+    //         Set<String> missing = new Set<String>(uniqueUnitCodes);
+    //         missing.removeAll(unitMap.keySet());
+    //         throw new AuraHandledException('Invalid/Unavailable Unit Codes: ' + String.join(new List<String>(missing), ', '));
+    //     }
 
-    if (!taxLinks.isEmpty()) insert taxLinks;
+    //     List<Cost_Unit_Linking__c> links = new List<Cost_Unit_Linking__c>();
+    //     for (Unit__c u : unitMap.values()) {
+    //         links.add(new Cost_Unit_Linking__c(
+    //             Cost_Sheet_Template__c = templateId,
+    //             Unit__c = u.Id
+    //         ));
+    //     }
 
-    List<Cost_Pricing_Association__c> updates = new List<Cost_Pricing_Association__c>();
-    for (Id pid : pricingTaxSums.keySet()) {
-        updates.add(new Cost_Pricing_Association__c(
-            Id = pid,
-            Tax_Amount__c = pricingTaxSums.get(pid)
-        ));
-    }
+    //     insert links;
+    // }
 
-    if (!updates.isEmpty()) update updates;
-}
+    // private static Map<Integer, Id> processPricingAssociations(Id templateId,List<PricingRowWrapper> rows) {
+    //     Map<String, Pricing_Element_Master__c> masterMap = new Map<String, Pricing_Element_Master__c>();
+    //     for (Pricing_Element_Master__c pe : [
+    //         SELECT Id, Name
+    //         FROM Pricing_Element_Master__c
+    //         WHERE Parking_Type__c = null
+    //     ]) {
+    //         masterMap.put(pe.Name, pe);
+    //     }
+
+    //     List<Cost_Pricing_Association__c> records = new List<Cost_Pricing_Association__c>();
+    //     Map<Integer, Id> result = new Map<Integer, Id>();
+
+    //     for (Integer i = 0; i < rows.size(); i++) {
+    //         PricingRowWrapper r = rows[i];
+            
+    //         if (String.isBlank(r.pricingElementAlloc) ||
+    //         !masterMap.containsKey(r.pricingElementAlloc)) {
+    //             throw new AuraHandledException('Invalid Pricing Element Allocation : ' + r.pricingElementAlloc);
+    //         }
+
+    //         Decimal amount = r.quantity * r.rate;
+
+    //         Cost_Pricing_Association__c rec = new Cost_Pricing_Association__c(
+    //             Cost_Sheet_Template__c    = templateId,
+    //             Pricing_Element_Master__c = masterMap.get(r.pricingElementAlloc).Id,
+    //             Unit__c                   = r.unit,
+    
+    //             PE_Type__c                = r.peType,
+    //             Type__c                   = r.type,
+    //             Sequence__c               = r.sequence,
+    //             Quantity__c               = r.quantity,
+    //             Rate__c                   = r.rate,
+    //             Amount__c                 = amount,
+    //             Tax_Amount__c             = 0  
+    //         );
+
+    //         records.add(rec);
+    //     }
+
+    //     insert records;
+
+    //     for (Integer i = 0; i < records.size(); i++) {
+    //         result.put(i, records[i].Id);
+    //     }
+
+    //     return result;
+    // }
+
+    // private static void processTaxes(Map<Integer, Id> pricingAssocMap,List<PricingRowWrapper> rows) {
+    //     Map<String, Tax_Master__c> taxMap = new Map<String, Tax_Master__c>();
+    //     for (Tax_Master__c t : [
+    //         SELECT Id, Name, Tax__c, Tax_Type__c
+    //         FROM Tax_Master__c
+    //         WHERE Active__c = true
+    //     ]) {
+    //         taxMap.put(t.Name, t);
+    //     }
+
+    //     List<Cost_Sheet_Tax_Linking__c> taxLinks = new List<Cost_Sheet_Tax_Linking__c>();
+    //     Map<Id, Decimal> pricingTaxSums = new Map<Id, Decimal>();
+
+    //     for (Integer i = 0; i < rows.size(); i++) {
+    //         PricingRowWrapper r = rows[i];
+    //         if (String.isBlank(r.taxName)) continue;
+
+    //         Id pricingAssocId = pricingAssocMap.get(i);
+    //         Tax_Master__c tm = taxMap.get(r.taxName);
+
+    //         if (tm == null) {
+    //             throw new AuraHandledException('Invalid Tax: ' + r.taxName);
+    //         }
+
+    //         if (tm.Tax_Type__c != r.taxType) {
+    //             throw new AuraHandledException(
+    //                 'Tax "' + r.taxName + '" is of type "' + tm.Tax_Type__c + '"'
+    //             );
+    //         }
+
+    //         Decimal appliedPercent =
+    //             (r.appPercent != null && r.appPercent > 0)
+    //             ? r.appPercent
+    //             : tm.Tax__c;
+
+    //         Decimal baseAmount = r.quantity * r.rate;
+    //         Decimal taxAmount = baseAmount * (appliedPercent / 100);
+
+
+    //         taxLinks.add(new Cost_Sheet_Tax_Linking__c(
+    //             Cost_Pricing_Association__c = pricingAssocId,
+    //             Tax_Master__c = tm.Id,
+    //             App__c = appliedPercent,
+    //             Amount__c = taxAmount
+    //         ));
+
+    //         pricingTaxSums.put(
+    //             pricingAssocId,
+    //             (pricingTaxSums.containsKey(pricingAssocId)
+    //                 ? pricingTaxSums.get(pricingAssocId)
+    //                 : 0) + taxAmount
+    //         );
+    //     }
+
+    //     if (!taxLinks.isEmpty()) insert taxLinks;
+
+    //     List<Cost_Pricing_Association__c> updates = new List<Cost_Pricing_Association__c>();
+    //     for (Id pid : pricingTaxSums.keySet()) {
+    //         updates.add(new Cost_Pricing_Association__c(
+    //             Id = pid,
+    //             Tax_Amount__c = pricingTaxSums.get(pid)
+    //         ));
+    //     }
+
+    //     if (!updates.isEmpty()) update updates;
+    // }
 
     public class PayloadWrapper {
         public TemplateWrapper template;
@@ -320,7 +563,7 @@ public with sharing class CostSheetCsvController {
     }
 
     public class PricingRowWrapper {
-        public String pricingElementMaster;
+        // public String pricingElementMaster;
         public String pricingElementAlloc;
         public String unit;
         public String peType;

@@ -64,120 +64,113 @@ public static List<Payment_Scheme__c> getPaymentSchemes() {
         );
     }
 
-   @AuraEnabled
-public static void createPaymentSchemes(String recordsJson) {
+  @AuraEnabled
+    public static void createPaymentSchemes(String recordsJson) {
 
-    if (String.isBlank(recordsJson)) {
-        throw new AuraHandledException('No data received');
-    }
+        try{
+            if (String.isBlank(recordsJson)) {
+                throw new AuraHandledException('No data received');
+            }
 
-    List<Object> payload =
-        (List<Object>) JSON.deserializeUntyped(recordsJson);
+            Map<String, Object> payload =
+                (Map<String, Object>) JSON.deserializeUntyped(recordsJson);
 
-    Set<String> incomingKeys = new Set<String>();
+            Set<String> incomingKeys = new Set<String>();
 
-    /* ---------------- CHECK DUPLICATES IN DB ---------------- */
+            for (String key : payload.keySet()) {
+                Map<String, Object> s = (Map<String, Object>) payload.get(key);
 
-    for (Object obj : payload) {
+                String uniqueKey =
+                    s.get('companyId') + '|' +
+                    s.get('projectId') + '|' +
+                    s.get('blockId') + '|' +
+                    ((String) s.get('name')).toLowerCase();
 
-        Map<String, Object> s = (Map<String, Object>) obj;
+                incomingKeys.add(uniqueKey);
+            }
 
-        String uniqueKey =
-            String.valueOf(s.get('companyId')) + '|' +
-            String.valueOf(s.get('projectId')) + '|' +
-            String.valueOf(s.get('blockId')) + '|' +
-            ((String) s.get('name')).toLowerCase();
+            List<Payment_Scheme__c> existingSchemes = [
+                SELECT Id, Company__c, Project__c, Block__c, Name
+                FROM Payment_Scheme__c
+                WHERE Company__c != null
+                AND Project__c != null
+                AND Block__c != null
+            ];
 
-        incomingKeys.add(uniqueKey);
-    }
+            Set<String> existingKeys = new Set<String>();
+            for (Payment_Scheme__c ps : existingSchemes) {
+                existingKeys.add(
+                    ps.Company__c + '|' +
+                    ps.Project__c + '|' +
+                    ps.Block__c + '|' +
+                    ps.Name.toLowerCase()
+                );
+            }
 
-    List<Payment_Scheme__c> existingSchemes = [
-        SELECT Id, Company__c, Project__c, Block__c, Name
-        FROM Payment_Scheme__c
-        WHERE Company__c != null
-        AND Project__c != null
-        AND Block__c != null
-    ];
+            for (String k : incomingKeys) {
+                if (existingKeys.contains(k)) {
+                    throw new AuraHandledException(
+                        'Duplicate Payment Scheme already exists. ' +
+                        'Company + Project + Block + Scheme Name must be unique.'
+                    );
+                }
+            }
 
-    Set<String> existingKeys = new Set<String>();
+            List<Payment_Scheme__c> schemes = new List<Payment_Scheme__c>();
+            List<Payment_Scheme_Installment__c> installments =
+                new List<Payment_Scheme_Installment__c>();
 
-    for (Payment_Scheme__c ps : existingSchemes) {
-        existingKeys.add(
-            ps.Company__c + '|' +
-            ps.Project__c + '|' +
-            ps.Block__c + '|' +
-            ps.Name.toLowerCase()
-        );
-    }
+            for (String key : payload.keySet()) {
 
-    for (String k : incomingKeys) {
-        if (existingKeys.contains(k)) {
-            throw new AuraHandledException(
-                'Duplicate Payment Scheme already exists. ' +
-                'Company + Project + Block + Scheme Name must be unique.'
-            );
-        }
-    }
+                Map<String, Object> s = (Map<String, Object>) payload.get(key);
 
-    /* ---------------- INSERT SCHEMES ---------------- */
-
-    List<Payment_Scheme__c> schemes = new List<Payment_Scheme__c>();
-
-    for (Object obj : payload) {
-
-        Map<String, Object> s = (Map<String, Object>) obj;
-
-        schemes.add(new Payment_Scheme__c(
-            Name            = (String) s.get('name'),
-            Company__c      = (Id) s.get('companyId'),
-            Project__c      = (Id) s.get('projectId'),
-            Block__c        = (Id) s.get('blockId'),
-            Token_Amount__c = (Decimal) s.get('tokenAmount'),
-            From_Date__c    = parseDate((String) s.get('fromDate')),
-            To_Date__c      = parseDate((String) s.get('toDate'))
-        ));
-    }
-
-    insert schemes;
-
-    /* ---------------- INSERT INSTALLMENTS (SAFE) ---------------- */
-
-    Map<String, Id> schemeIdByName = new Map<String, Id>();
-
-    for (Payment_Scheme__c ps : schemes) {
-        schemeIdByName.put(ps.Name, ps.Id);
-    }
-
-    List<Payment_Scheme_Installment__c> installments =
-        new List<Payment_Scheme_Installment__c>();
-
-    for (Object obj : payload) {
-
-        Map<String, Object> s = (Map<String, Object>) obj;
-
-        Id schemeId = schemeIdByName.get((String) s.get('name'));
-
-        if (s.containsKey('installments') &&
-            s.get('installments') != null) {
-
-            for (Object o : (List<Object>) s.get('installments')) {
-
-                Map<String, Object> row = (Map<String, Object>) o;
-
-                installments.add(new Payment_Scheme_Installment__c(
-                    Payment_Scheme__c = schemeId,
-                    Payment_Schedule_Master__c =
-                        (Id) row.get('scheduleMasterId'),
-                    Type__c = (String) row.get('type'),
-                    Installment__c = (Decimal) row.get('percentage'),
-                    Display_Order__c = (Integer) row.get('displayOrder')
+                schemes.add(new Payment_Scheme__c(
+                    Name            = (String) s.get('name'),
+                    Company__c      = (Id) s.get('companyId'),
+                    Project__c      = (Id) s.get('projectId'),
+                    Block__c        = (Id) s.get('blockId'),
+                    Token_Amount__c = (Decimal) s.get('tokenAmount'),
+                    From_Date__c    = parseDate((String) s.get('fromDate')),
+                    To_Date__c      = parseDate((String) s.get('toDate'))
                 ));
             }
+
+            insert schemes;
+
+            Map<String, Id> schemeIdByName = new Map<String, Id>();
+            for (Payment_Scheme__c ps : schemes) {
+                schemeIdByName.put(ps.Name, ps.Id);
+            }
+
+            for (String key : payload.keySet()) {
+
+                Map<String, Object> s = (Map<String, Object>) payload.get(key);
+                Id schemeId = schemeIdByName.get((String) s.get('name'));
+
+                Object instObj = s.get('installments');
+
+                List<Object> instList = (List<Object>) JSON.deserializeUntyped(
+                    JSON.serialize(instObj)
+                );
+
+                for (Object o : instList) {
+
+                    Map<String, Object> row = (Map<String, Object>) o;
+
+                    installments.add(new Payment_Scheme_Installment__c(
+                        Payment_Scheme__c = schemeId,
+                        Payment_Schedule_Master__c =
+                            (Id) row.get('scheduleMasterId'),
+                        Type__c = (String) row.get('type'),
+                        Installment__c = (Decimal) row.get('percentage'),
+                        Display_Order__c = (Integer) row.get('displayOrder')
+                    ));
+                }
+            }
+
+            insert installments;
+        }catch(Exception e){
+            throw new AuraHandledException(e.getMessage());
         }
     }
-
-    if (!installments.isEmpty()) {
-        insert installments;
-    }
-}
 }

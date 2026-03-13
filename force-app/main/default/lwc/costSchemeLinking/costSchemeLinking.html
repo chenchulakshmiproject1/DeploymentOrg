@@ -14,6 +14,10 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button class="btn-outline" onclick={createIndividualRec}>
+                    <lightning-icon icon-name="utility:add" size="x-small" class="btn-slds-icon"></lightning-icon>
+                    <span>Create Individual</span>
+                </button>
                 <button class="btn-outline" onclick={uploadTemplate}>
                     <lightning-icon icon-name="utility:upload" size="x-small" class="btn-slds-icon"></lightning-icon>
                     <span>Upload File</span>
@@ -142,7 +146,7 @@
                 <template for:each={paginatedUnitData} for:item="row">
                     <tr key={row.Id}>
                         <td>{row.sNo}</td>
-                        <td>{row.CostSchemeLinkingName}</td>
+                        <td><span class="link" data-id={row.Id} onclick={handleRowClick}>{row.CostSchemeLinkingName}</span></td>
                         <td>{row.CostSheetTemplateName}</td>
                         <td>{row.PaymentScheme}</td>
                         <td>{row.CreatedDate}</td>

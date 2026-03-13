@@ -347,4 +347,9 @@ export default class BulkPricingElementCsv extends LightningElement {
             new ShowToastEvent({ title, message, variant })
         );
     }
+    handleRowClick(event) {
+        debugger
+        const recordId = event.currentTarget.dataset.id;
+        window.open('/' + recordId, '_blank');
+    }
 }

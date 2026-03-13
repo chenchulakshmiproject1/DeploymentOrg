@@ -120,7 +120,7 @@
                 <template for:each={paginatedUnitData} for:item="row">
                     <tr key={row.Id}>
                         <td>{row.sNo}</td>
-                        <td>{row.Name}</td>
+                        <td><span class="link" data-id={row.Id} onclick={handleRowClick}>{row.Name}</span></td>
                         <td>{row.Category__c}</td>
                         <td>{row.Base_Unit__c}</td>
                         <td>{row.Code__c}</td>

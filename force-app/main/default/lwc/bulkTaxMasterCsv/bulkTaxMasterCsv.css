@@ -234,3 +234,13 @@ th.error-header {
     color: #1f2937;
     margin-right: 8px;
 }
+.link {
+    color: #2f558a;
+    font-weight: 700;
+    padding-bottom: 5px;
+}
+.link:hover {
+    color: #22416b;
+    text-decoration: underline;
+    cursor: pointer;
+}

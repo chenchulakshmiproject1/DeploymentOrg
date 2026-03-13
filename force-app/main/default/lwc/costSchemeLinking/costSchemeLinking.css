@@ -337,3 +337,13 @@ th.error-header {
 .project-option:last-child {
     border-bottom: none;
 }
+.link {
+    color: #2f558a;
+    font-weight: 700;
+    padding-bottom: 5px;
+}
+.link:hover {
+    color: #22416b;
+    text-decoration: underline;
+    cursor: pointer;
+}

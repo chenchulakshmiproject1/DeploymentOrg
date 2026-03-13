@@ -348,21 +348,26 @@ export default class BulkUploadProjectData extends LightningElement {
 
     this.filterUnits();
 }
-filterUnits(){
-    if(this.selectedProjects.length === 0){
-        this.filteredUnits = [...this.existingUnits];
-    } else {
-        this.filteredUnits = this.existingUnits.filter(unit =>
-            this.selectedProjects.includes(unit.projectId)
-        );
+    filterUnits(){
+        if(this.selectedProjects.length === 0){
+            this.filteredUnits = [...this.existingUnits];
+        } else {
+            this.filteredUnits = this.existingUnits.filter(unit =>
+                this.selectedProjects.includes(unit.projectId)
+            );
+        }
+
+        this.unitsCount = this.filteredUnits.length;
+        this.curPageNumUnit = 1;
+
+        setTimeout(() => {
+            const pagination = this.template.querySelector('.unitPagination');
+            if (pagination) pagination.setPagination(this.pageSize2);
+        });
     }
-
-    this.unitsCount = this.filteredUnits.length;
-    this.curPageNumUnit = 1;
-
-    setTimeout(() => {
-        const pagination = this.template.querySelector('.unitPagination');
-        if (pagination) pagination.setPagination(this.pageSize2);
-    });
-}
+    handleRowClick(event) {
+        debugger
+        const recordId = event.currentTarget.dataset.id;
+        window.open('/' + recordId, '_blank');
+    }
 }

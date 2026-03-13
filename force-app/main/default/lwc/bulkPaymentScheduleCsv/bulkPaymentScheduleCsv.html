@@ -111,7 +111,7 @@
                 <template for:each={paginatedUnitData} for:item="row">
                     <tr key={row.Id}>
                         <td>{row.sNo}</td>
-                        <td>{row.Name}</td>
+                        <td><span class="link" data-id={row.Id} onclick={handleRowClick}>{row.Name}</span></td>
                         <td>{row.Installment_Code__c}</td>
                         <td>{row.Installment_Sequence__c}</td>
                     </tr>

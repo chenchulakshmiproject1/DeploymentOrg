@@ -1,18 +1,59 @@
 <template>
     <div class="container">
-        <div class="page-header">
-            <div class="page-title">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <span class="title-icon">
-                        <lightning-icon icon-name="utility:upload" size="medium"></lightning-icon>
-                    </span>
-                    <div>
+        <div class="head-tab-div">
+            <div class="page-header">
+                <div class="page-title">
+                    <div class="icon">
+                        <lightning-icon icon-name="utility:settings" size="medium"></lightning-icon>
+                    </div>
+
+                    <div class="title-text">
                         <h1>Integration Configuration</h1>
-                        <span>Configure and manage integration settings</span>
+                        <p>Configure integration credentials and endpoints</p>
                     </div>
                 </div>
+
             </div>
+
+            <lightning-tabset active-tab-value={activeTab}>
+                <template for:each={tabs} for:item="tab">
+                    <lightning-tab key={tab.value} label={tab.label} value={tab.value} onactive={handleActiveTab}> </lightning-tab>
+                </template>
+            </lightning-tabset>
         </div>
 
+        <template if:true={isLoading}>
+            <div class="spinner-wrapper">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <div class="config-wrapper">
+            <template if:true={activeSection}>
+                <div class="section-card">
+                    <div class="section-title"> {activeSection.settingLabel} </div>
+
+                    <template for:each={activeSection.fields} for:item="field" for:index="index">
+                        <div key={field.fieldApiName} class="field-row">
+                            <div class="drag-icon">⋮⋮</div>
+
+                            <div class="field-info">
+                                <div class="field-label">{field.label}</div>
+                                <!-- <div class="field-type">{field.fieldApiName}</div> -->
+                            </div>
+
+                            <div class="field-input">
+                                <lightning-input type={field.type} variant="label-hidden" placeholder={field.label} value={field.value} data-section={activeSection.settingType} data-index={index} onchange={handleInputChange}>
+                                </lightning-input>
+                            </div>
+                            
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+        <div class="bottom-save">
+                                <button class="save-btn" onclick={handleSave}>Save</button>
+                            </div>
     </div>
 </template>

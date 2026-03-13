@@ -1,0 +1,17 @@
+<apex:page showHeader="false" sidebar="false">
+    <apex:includeLightning />
+
+    <div id="lwcContainer"></div>
+
+    <script>
+        $Lightning.use("c:siteVisitFormApp", function() {
+            $Lightning.createComponent(
+                "c:siteVisitFormWrapper",
+                {},
+                "lwcContainer",
+                function(component) {}
+            );
+        });
+    </script>
+
+</apex:page>

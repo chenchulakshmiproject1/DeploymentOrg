@@ -485,6 +485,12 @@
                 <div key={section.sectionName} class="section">
 
                     <h3 class="section-title">{section.sectionName}</h3> -->
+                    <template if:true={showCreateLead}>
+                        <div class="slds-m-top_medium slds-align_absolute-center"><h5 style="color:#1e45aa;">Lead</h5></div>
+                    </template>
+                    <template if:true={showVisitSection}>
+                        <div class="slds-m-top_medium slds-align_absolute-center"><h5 style="color:#1e45aa;">Visit</h5></div>
+                    </template>
                     <div class="form-grid">
                         <template for:each={currentFields} for:item="field">
 
